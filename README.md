@@ -34,6 +34,20 @@ TBD.
 
 Pull requests in this repository are reviewed by two AI agents in parallel — one focused on language and abstraction concerns, the other on numerical and algorithmic correctness — with a third agent synthesizing their output. Conflicting opinions are surfaced rather than resolved, leaving each trade-off as an explicit decision for the learner. The full design rationale is documented in section 6 of [docs/learning-plan.md](docs/learning-plan.md).
 
+## Development
+
+### CI Setup (mock stage)
+
+Three GitHub Actions workflows live under [.github/workflows/](.github/workflows/) — `phase1-review.yml`, `phase2-review.yml`, `phase3-review.yml` — each implementing the three-job dual-agent review structure described in section 6.5 of the learning plan. The workflows are currently in **mock mode**: they run on `ubuntu-latest`, echo trigger context and job dependencies, and produce placeholder review artifacts so that path filters, artifact passing, and the `synthesizer needs [reviewer-*]` ordering can be verified before any agent cost is incurred. Each file also includes `workflow_dispatch` for manual verification.
+
+Activation requires:
+- Registering a self-hosted runner for this repository (the design assumes a local machine running an idle runner)
+- Switching each job's `runs-on` from `ubuntu-latest` to `self-hosted`
+- Removing the mock step and uncommenting the real agent invocation block in each job (Claude Code, Codex CLI reviewer, Codex CLI synthesizer)
+- Configuring authentication for Claude Code (Anthropic API key) and Codex CLI (per the existing subscription)
+
+Activation is planned at the end of Pre-Phase 1 or immediately before the first 본 학습 PR is opened, whichever comes first. Until then, mock runs are the only intended use.
+
 ## Documentation
 
 The full learning plan, including AI usage rules, per-phase milestones, and self-assessment questions, is documented in [docs/learning-plan.md](docs/learning-plan.md). The plan itself is written in Korean.

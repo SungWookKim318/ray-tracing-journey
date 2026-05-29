@@ -1,0 +1,248 @@
+name: Phase 2 Dual-Agent Review (Mock)
+
+on:
+  pull_request:
+    paths:
+      - 'phase-2-rtnw/**'
+  workflow_dispatch:
+
+jobs:
+  reviewer-rust:
+    name: Claude Code (Rust 관점, BVH ownership 포함) - mock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mock Claude Code review (Rust perspective)
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          BASE: ${{ github.base_ref || 'main' }}
+        run: |
+          echo "=== Phase 2 / reviewer-rust (mock) ==="
+          echo "PR number : ${PR_NUMBER:-<workflow_dispatch>}"
+          echo "Branch    : ${BRANCH}"
+          echo "Base      : ${BASE}"
+          echo ""
+          echo "Changed files (vs origin/${BASE}):"
+          git diff --name-only "origin/${BASE}...HEAD" 2>/dev/null \
+            || echo "  (diff unavailable - likely workflow_dispatch from non-PR context)"
+          echo ""
+          echo "System prompt preview (first two lines):"
+          echo "  > 당신은 Rust 관점에서 Phase 2 (Ray Tracing: The Next Week) 코드를 리뷰합니다."
+          echo "  > Phase 1 관점에 더해 BVH 및 instance 관련 ownership 설계를 중점적으로 살피되, 알고리즘 자체에 대한 제안은 하지 마십시오."
+          echo ""
+
+          cat > review-rust.md <<'MOCK_EOF'
+          # Mock review - Phase 2 (Rust perspective)
+
+          Placeholder produced by the mock workflow. When the real Claude Code
+          CLI is wired in, this file will contain review comments focused on
+          Rust ownership for BVH node trees, AABB caching, Hittable trait
+          extensions, and instance transform wrappers - without algorithm
+          suggestions or external math library proposals.
+          MOCK_EOF
+
+          echo "Wrote review-rust.md (mock content)"
+
+      # TODO: Uncomment this block, switch runs-on to self-hosted,
+      # and remove mock step above when local runner is configured.
+      # - name: Run Claude Code review
+      #   env:
+      #     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      #   run: |
+      #     CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
+      #     claude-code review \
+      #       --files $CHANGED_FILES \
+      #       --output review-rust.md \
+      #       --system-prompt "$(cat <<'PROMPT'
+      #     당신은 Rust 관점에서 Phase 2 (Ray Tracing: The Next Week) 코드를 리뷰합니다.
+      #     Phase 1 관점에 더해 BVH 및 instance 관련 ownership 설계를 중점적으로
+      #     살피되, 알고리즘 자체에 대한 제안은 하지 마십시오.
+      #
+      #     - BVH node 트리의 ownership (Box vs Arc, 재귀 구조의 메모리 안전성)
+      #     - AABB 캐싱 전략 (lazy vs eager, Copy vs reference 전달)
+      #     - Hittable trait 확장의 idiomatic 여부 (Quad, ConstantMedium 등)
+      #     - Instance 패턴 (Translate, RotateY 등) 의 trait composition 설계
+      #     - Texture trait의 dispatch 비용과 lifetime 처리
+      #     - Phase 1과 공유되는 ownership/clone/alloc/lifetime 일관성
+      #
+      #     다음 사항은 금지됩니다.
+      #     - 코드 수정안 직접 제시
+      #     - 외부 수학 라이브러리 사용 제안
+      #     - BVH split 전략, intersection 알고리즘 등 RT 알고리즘 측면 언급
+      #     PROMPT
+      #     )"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: review-rust
+          path: review-rust.md
+
+  reviewer-algorithm:
+    name: Codex CLI (알고리즘 관점, BVH 정확성 포함) - mock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mock Codex CLI review (algorithm perspective)
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          BASE: ${{ github.base_ref || 'main' }}
+        run: |
+          echo "=== Phase 2 / reviewer-algorithm (mock) ==="
+          echo "PR number : ${PR_NUMBER:-<workflow_dispatch>}"
+          echo "Branch    : ${BRANCH}"
+          echo "Base      : ${BASE}"
+          echo ""
+          echo "Changed files (vs origin/${BASE}):"
+          git diff --name-only "origin/${BASE}...HEAD" 2>/dev/null \
+            || echo "  (diff unavailable - likely workflow_dispatch from non-PR context)"
+          echo ""
+          echo "System prompt preview (first two lines):"
+          echo "  > 당신은 수치 정확성 및 알고리즘 측면에서 Phase 2 코드를 리뷰합니다."
+          echo "  > Phase 1 항목에 더해 BVH 정확성, motion blur, Perlin noise, instance 변환의 명백한 버그를 중점 식별하되 Rust 관용구는 다루지 마십시오."
+          echo ""
+
+          cat > review-algorithm.md <<'MOCK_EOF'
+          # Mock review - Phase 2 (algorithm perspective)
+
+          Placeholder produced by the mock workflow. When the real Codex CLI
+          is wired in, this file will contain review comments focused on
+          BVH traversal correctness (the key Phase 3 preparation asset),
+          motion blur time parameterization, Perlin noise distribution,
+          quadrilateral intersection geometry, instance transform inverses,
+          and volumetric integration math.
+          MOCK_EOF
+
+          echo "Wrote review-algorithm.md (mock content)"
+
+      # TODO: Uncomment this block, switch runs-on to self-hosted,
+      # and remove mock step above when local runner is configured.
+      # - name: Run Codex CLI review
+      #   env:
+      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      #   run: |
+      #     CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
+      #     codex review \
+      #       --files $CHANGED_FILES \
+      #       --output review-algorithm.md \
+      #       --system-prompt "$(cat <<'PROMPT'
+      #     당신은 수치 정확성 및 알고리즘 측면에서 Phase 2 (Ray Tracing: The Next Week)
+      #     코드를 리뷰합니다. Phase 1 항목에 더해 다음을 중점 식별하되, Rust 관용구는
+      #     다루지 마십시오.
+      #
+      #     - Phase 1 공통: 부동소수점 비교, 0 나눗셈, NaN, 벡터 정규화 안전성
+      #     - BVH 정확성 (Phase 3 acceleration structure 이해의 핵심 자산):
+      #       axis 선택 및 split, AABB merge, traversal early-out 조건
+      #     - Motion blur: ray time 파라미터화 일관성, sphere center 보간
+      #     - Perlin noise: hash 분포, smoothing 함수, turbulence 합산
+      #     - Quadrilateral: cross product 기반 plane projection 정확성
+      #     - Instance: rotate/translate inverse 계산, AABB 갱신 누락
+      #     - Volumetric: density-to-opacity, Henyey-Greenstein phase function 등
+      #
+      #     다음 사항은 금지됩니다.
+      #     - 코드 수정안 직접 제시
+      #     - BVH split 전략 등 "더 좋은 알고리즘" 제안 (학습자가 도서를 통해 진행 중)
+      #     - Rust 관용구나 ownership 설계 언급
+      #     PROMPT
+      #     )"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: review-algorithm
+          path: review-algorithm.md
+
+  synthesizer:
+    name: Codex CLI Synthesizer - mock
+    needs: [reviewer-rust, reviewer-algorithm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: review-rust
+          path: ./artifacts/review-rust
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: review-algorithm
+          path: ./artifacts/review-algorithm
+
+      - name: Mock synthesizer
+        run: |
+          echo "=== Phase 2 / synthesizer (mock) ==="
+          echo ""
+          echo "Verifying upstream artifacts..."
+          test -f ./artifacts/review-rust/review-rust.md && echo "  [ok] review-rust.md"
+          test -f ./artifacts/review-algorithm/review-algorithm.md && echo "  [ok] review-algorithm.md"
+          echo ""
+          echo "--- review-rust.md ---"
+          cat ./artifacts/review-rust/review-rust.md
+          echo ""
+          echo "--- review-algorithm.md ---"
+          cat ./artifacts/review-algorithm/review-algorithm.md
+          echo ""
+          echo "--- Mock synthesized output ---"
+          echo "## Agreed (both reviewers flagged)"
+          echo "(none - mock run)"
+          echo ""
+          echo "## Single-reviewer observations"
+          echo "[Claude only] mock placeholder from review-rust"
+          echo "[Codex only]  mock placeholder from review-algorithm"
+          echo ""
+          echo "## Conflicts (learner decision required)"
+          echo "(none - mock run)"
+          echo ""
+          echo "Mock dual-agent review completed - real agent calls are commented out below"
+
+      # TODO: Uncomment this block, switch runs-on to self-hosted,
+      # and remove mock step above when local runner is configured.
+      # - name: Run Codex CLI synthesizer
+      #   env:
+      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      #   run: |
+      #     codex synthesize \
+      #       --inputs ./artifacts/review-rust/review-rust.md \
+      #                ./artifacts/review-algorithm/review-algorithm.md \
+      #       --output synthesized.md \
+      #       --system-prompt "$(cat <<'PROMPT'
+      #     당신은 두 AI 리뷰어의 코드 리뷰 결과를 통합하는 정리자입니다.
+      #     코드 자체를 리뷰하지 마십시오. 두 입력 리뷰만을 분석합니다.
+      #
+      #     다음 세 카테고리로 출력을 구성하십시오.
+      #
+      #     ## Agreed (both reviewers flagged)
+      #     두 리뷰어가 같은 또는 매우 유사한 지적을 한 항목.
+      #     하나의 통합된 코멘트로 정리하되 원본의 핵심 표현은 보존합니다.
+      #
+      #     ## Single-reviewer observations
+      #     한 리뷰어만 지적한 항목. 원본을 그대로 인용하고
+      #     [Claude only] 또는 [Codex only] 태그를 붙입니다.
+      #     학습자 판단이 필요한 회색 지대임을 명시합니다.
+      #
+      #     ## Conflicts (learner decision required)
+      #     같은 코드에 대해 서로 다른 또는 반대되는 제안을 한 항목.
+      #     두 의견을 나란히 인용하고 [Conflict] 태그를 붙입니다.
+      #     어느 쪽이 옳다는 판단은 절대 하지 마십시오.
+      #     이 영역은 학습자가 trade-off를 명시적으로 판단해야 하는 학습 지점입니다.
+      #     Phase 2의 BVH 관련 conflict는 특히 Phase 3 BLAS/TLAS 이해의 사전 자산이므로
+      #     판단 근거를 명확히 기록하도록 학습자에게 권유합니다.
+      #
+      #     규칙:
+      #     - 새 의견을 추가하지 마십시오
+      #     - 리뷰어들의 표현을 가능한 한 보존하십시오
+      #     - 통합을 위해 의미를 변경하지 마십시오
+      #     - 학습자에게 "어느 쪽을 따르라" 식의 지시 금지
+      #     PROMPT
+      #     )"
+      # - name: Post synthesized review to PR
+      #   if: github.event_name == 'pull_request'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     gh pr comment ${{ github.event.pull_request.number }} --body-file synthesized.md
