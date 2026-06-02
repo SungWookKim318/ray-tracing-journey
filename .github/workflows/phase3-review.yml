@@ -48,8 +48,8 @@ jobs:
 
           echo "Wrote review-cpp.md (mock content)"
 
-      # TODO: Uncomment this block, switch runs-on to self-hosted,
-      # and remove mock step above when local runner is configured.
+      # TODO: Uncomment this block, switch runs-on above to
+      # [self-hosted, ai_agent], and remove the mock step above.
       # - name: Run Claude Code review
       #   env:
       #     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -123,8 +123,8 @@ jobs:
 
           echo "Wrote review-algorithm.md (mock content)"
 
-      # TODO: Uncomment this block, switch runs-on to self-hosted,
-      # and remove mock step above when local runner is configured.
+      # TODO: Uncomment this block, switch runs-on above to
+      # [self-hosted, ai_agent], and remove the mock step above.
       # - name: Run Codex CLI review
       #   env:
       #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -201,8 +201,8 @@ jobs:
           echo ""
           echo "Mock dual-agent review completed - real agent calls are commented out below"
 
-      # TODO: Uncomment this block, switch runs-on to self-hosted,
-      # and remove mock step above when local runner is configured.
+      # TODO: Uncomment this block, switch runs-on above to
+      # [self-hosted, ai_agent], and remove the mock step above.
       # - name: Run Codex CLI synthesizer
       #   env:
       #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

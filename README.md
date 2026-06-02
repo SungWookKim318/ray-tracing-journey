@@ -40,13 +40,14 @@ Pull requests in this repository are reviewed by two AI agents in parallel — o
 
 Three GitHub Actions workflows live under [.github/workflows/](.github/workflows/) — `phase1-review.yml`, `phase2-review.yml`, `phase3-review.yml` — each implementing the three-job dual-agent review structure described in section 6.5 of the learning plan. The workflows are currently in **mock mode**: they run on `ubuntu-latest`, echo trigger context and job dependencies, and produce placeholder review artifacts so that path filters, artifact passing, and the `synthesizer needs [reviewer-*]` ordering can be verified before any agent cost is incurred. Each file also includes `workflow_dispatch` for manual verification.
 
-Activation requires:
-- Registering a self-hosted runner for this repository (the design assumes a local machine running an idle runner)
-- Switching each job's `runs-on` from `ubuntu-latest` to `self-hosted`
-- Removing the mock step and uncommenting the real agent invocation block in each job (Claude Code, Codex CLI reviewer, Codex CLI synthesizer)
-- Configuring authentication for Claude Code (Anthropic API key) and Codex CLI (per the existing subscription)
+**Local runner**: a self-hosted macOS ARM64 runner is registered for this repository with the `ai_agent` label, currently idle.
 
-Activation is planned at the end of Pre-Phase 1 or immediately before the first 본 학습 PR is opened, whichever comes first. Until then, mock runs are the only intended use.
+Remaining activation steps:
+- Switching each job's `runs-on` from `ubuntu-latest` to `[self-hosted, ai_agent]` so that the workflows target this specific runner
+- Removing the mock step and uncommenting the real agent invocation block in each job (Claude Code, Codex CLI reviewer, Codex CLI synthesizer)
+- Configuring authentication for Claude Code (Anthropic API key) and Codex CLI (per the existing subscription, expected to use runner-local login rather than a CI secret)
+
+Activation is planned at the end of Pre-Phase 1 or immediately before the first 본 학습 PR is opened, whichever comes first. Until then, mock runs on `ubuntu-latest` are the only intended use.
 
 ## Documentation
 
