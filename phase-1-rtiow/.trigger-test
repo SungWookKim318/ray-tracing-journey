@@ -1,0 +1,2 @@
+Mock trigger file for phase1-review.yml workflow verification.
+Safe to delete once the workflow is confirmed to fire on PR open.
