@@ -1,4 +1,8 @@
 #![allow(dead_code)]
+mod color;
+mod vec3;
+use color::Color;
+use vec3::Vec3;
 
 fn main() {
     eprintln!("Start RT");
