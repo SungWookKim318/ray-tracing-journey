@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 fn main() {
+    eprintln!("Start RT");
     let dummy = ImageData::mock();
     dummy.print_to_ppm();
 }
@@ -49,5 +50,6 @@ impl ImageData {
             }
             print!("\n");
         }
+        eprintln!("Finish print ppm data")
     }
 }
