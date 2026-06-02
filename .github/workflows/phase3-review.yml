@@ -6,6 +6,10 @@ on:
       - 'phase-3-dxr/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   reviewer-cpp:
     name: Claude Code (C++/D3D12 관점) - mock
@@ -201,8 +205,36 @@ jobs:
           echo ""
           echo "Mock dual-agent review completed - real agent calls are commented out below"
 
+      - name: Post mock synthesized review to PR
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > mock-comment.md <<'COMMENT_EOF'
+          **Mock Dual-Agent Review (Phase 3)**
+
+          Placeholder comment produced by the mock workflow. After activation,
+          the real synthesized review from Codex CLI will replace this content.
+
+          ## Agreed (both reviewers flagged)
+          (none - mock run)
+
+          ## Single-reviewer observations
+          - [Claude only] mock placeholder from review-cpp
+          - [Codex only]  mock placeholder from review-algorithm
+
+          ## Conflicts (learner decision required)
+          (none - mock run)
+
+          ---
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMENT_EOF
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --body-file mock-comment.md
+
       # TODO: Uncomment this block, switch runs-on above to
-      # [self-hosted, ai_agent], and remove the mock step above.
+      # [self-hosted, ai_agent], and remove the mock steps above.
       # - name: Run Codex CLI synthesizer
       #   env:
       #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
