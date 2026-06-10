@@ -1,59 +1,62 @@
 #![allow(dead_code)]
 mod color;
+mod imagedata;
+mod ray;
 mod vec3;
+
 use color::Color;
+use imagedata::ImageData;
+use ray::Ray;
+use std::vec;
+use vec3::Point3;
 use vec3::Vec3;
 
 fn main() {
     eprintln!("Start RT");
-    let dummy = ImageData::mock();
-    dummy.print_to_ppm();
-}
 
-struct ImageData {
-    width: u32,
-    height: u32,
-    pixel_per_byte: u8,
-    data: Box<[u8]>,
-}
+    // setup canvas
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400;
+    let image_height = image_width / aspect_ratio as i32;
 
-impl ImageData {
-    fn mock() -> ImageData {
-        const WIDTH: usize = 256;
-        const HEIGHT: usize = 256;
-        const PIXEL_PER_BYTE: usize = 3;
-        const RECT: usize = WIDTH * HEIGHT;
-        let mut data = Box::new([0; WIDTH * HEIGHT * PIXEL_PER_BYTE]);
+    // Camera
+    let focal_length = 1.0;
+    let viewport_height = 2.0;
+    let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
+    let camera_center = Point3::zero();
 
-        for (index, fragment) in data.chunks_exact_mut(PIXEL_PER_BYTE).enumerate() {
-            let [r, g, b]: &mut [u8; PIXEL_PER_BYTE] = fragment.try_into().unwrap();
-            let x = index % WIDTH;
-            let y = index / WIDTH;
+    // Calculate the vectors across the horizontal and down the vertical viewport edges.
+    let viewport_u = Vec3::new(viewport_width as f32, 0.0, 0.0);
+    let viewport_v = Vec3::new(0.0, -viewport_height as f32, 0.0);
 
-            *r = (255.999 * (x as f32 / WIDTH as f32)) as u8;
-            *g = (255.999 * (y as f32 / HEIGHT as f32)) as u8;
-            *b = 0;
-        }
+    // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+    let pixel_delta_u = viewport_u / image_width as f32;
+    let pixel_delta_v = viewport_v / image_height as f32;
 
-        ImageData {
-            width: WIDTH as u32,
-            height: HEIGHT as u32,
-            pixel_per_byte: PIXEL_PER_BYTE as u8,
-            data: data,
-        }
+    // Calculate the location of the upper left pixel.
+    let viewport_upper_left =
+        camera_center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+    let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+    let mut image: ImageData = ImageData::new(image_width as usize, image_height as usize);
+
+    // Renderring
+    for (index, pixel) in image.data.iter_mut().enumerate() {
+        let x = (index % image_width as usize) as f32;
+        let y = (index / image_height as usize) as f32;
+
+        let pixel_center = pixel00_loc + (x * pixel_delta_u) + (y * pixel_delta_v);
+        let ray_direction = pixel_center - camera_center;
+        let ray = Ray::new(camera_center, ray_direction);
+        *pixel = ray_color(ray);
     }
 
-    fn print_to_ppm(self) {
-        println!("P3");
-        println!("{} {}", self.width, self.height);
-        println!("255");
+    image.print_to_ppm();
+}
 
-        for line_fragments in self.data.chunks_exact(self.width as usize) {
-            for fragment in line_fragments {
-                print!("{} ", fragment);
-            }
-            print!("\n");
-        }
-        eprintln!("Finish print ppm data")
-    }
+fn ray_color(ray: Ray) -> Color {
+    let unit_direction = ray.direction().normalize();
+    let a = 0.5 * (unit_direction.y + 1.0);
+    let norm_color = (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0);
+    return 255.999 * norm_color;
 }

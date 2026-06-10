@@ -7,6 +7,8 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+pub type Point3 = Vec3;
+
 // Constructor
 impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
@@ -122,23 +124,23 @@ impl DivAssign<f32> for Vec3 {
 // Helper Calculation Functions
 
 impl Vec3 {
-    fn dot(self, rhs: Vec3) -> f32 {
+    pub fn dot(self, rhs: Vec3) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
-    fn cross(self, rhs: Vec3) -> Vec3 {
+    pub fn cross(self, rhs: Vec3) -> Vec3 {
         Vec3 {
             x: self.y * rhs.z - self.z * rhs.y,
             y: self.z * rhs.x - self.x * rhs.z,
             z: self.x * rhs.y - self.y * rhs.x,
         }
     }
-    fn length_squared(self) -> f32 {
+    pub fn length_squared(self) -> f32 {
         return self.x * self.x + self.y * self.y + self.z * self.z;
     }
-    fn length(self) -> f32 {
+    pub fn length(self) -> f32 {
         return self.length_squared().sqrt();
     }
-    fn normalize(self) -> Vec3 {
+    pub fn normalize(self) -> Vec3 {
         return self / self.length();
     }
 }
