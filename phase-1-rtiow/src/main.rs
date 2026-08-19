@@ -50,20 +50,25 @@ fn main() {
         let pixel_center = pixel00_loc + (x * pixel_delta_u) + (y * pixel_delta_v);
         let ray_direction = pixel_center - camera_center;
         let ray = Ray::new(camera_center, ray_direction);
-        *pixel = ray_color(ray);
+        *pixel = 255.999 * ray_color(ray);
     }
 
     image.print_to_ppm();
 }
 
 fn ray_color(ray: Ray) -> Color {
-    let center = Point3::new(0.0, 0.0, -1.0);
-    if hit_sphere(&center, 0.5, &ray) {
-        return 255.999 * Color::new(1., 0., 0.);
+    const CIRLCE_CENTER: Vec3 = Vec3::new(0.0, 0.0, -1.0);
+    let t = hit_sphere(&CIRLCE_CENTER, 0.5, &ray);
+    if t > 0. {
+        let normal_vector: Vec3 = (ray.at(t) - CIRLCE_CENTER).normalize();
+        return Color::new(
+            normal_vector.x + 1.,
+            normal_vector.y + 1.,
+            normal_vector.z + 1.,
+        ) * 0.5;
     }
 
     let unit_direction = ray.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);
-    let norm_color = (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0);
-    255.999 * norm_color
+    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
