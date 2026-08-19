@@ -11,11 +11,15 @@ pub type Point3 = Vec3;
 
 // Constructor
 impl Vec3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Self { x: x, y: y, z: z }
+    pub const fn new(new_x: f32, new_y: f32, new_z: f32) -> Self {
+        Self {
+            x: new_x,
+            y: new_y,
+            z: new_z,
+        }
     }
 
-    pub fn zero() -> Self {
+    pub const fn zero() -> Self {
         Self {
             x: 0.0,
             y: 0.0,
@@ -23,7 +27,7 @@ impl Vec3 {
         }
     }
 
-    pub fn with_scalar(v: f32) -> Self {
+    pub const fn with_scalar(v: f32) -> Self {
         Self { x: v, y: v, z: v }
     }
 }
@@ -56,7 +60,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 impl Add for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Self) -> Self::Output {
-        return Vec3::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z);
+        Vec3::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 impl AddAssign for Vec3 {
@@ -70,7 +74,7 @@ impl AddAssign for Vec3 {
 impl Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, rhs: Self) -> Self::Output {
-        return Vec3::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z);
+        Vec3::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
     }
 }
 impl SubAssign for Vec3 {
@@ -84,13 +88,13 @@ impl SubAssign for Vec3 {
 impl Mul<f32> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: f32) -> Self::Output {
-        return Vec3::new(self.x * rhs, self.y * rhs, self.z * rhs);
+        Vec3::new(self.x * rhs, self.y * rhs, self.z * rhs)
     }
 }
 impl Mul<Vec3> for f32 {
     type Output = Vec3;
-    fn mul(self, lhs: Vec3) -> Self::Output {
-        return Vec3::new(lhs.x * self, lhs.y * self, lhs.z * self);
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
 impl MulAssign<f32> for Vec3 {
@@ -104,13 +108,13 @@ impl MulAssign<f32> for Vec3 {
 impl Div<f32> for Vec3 {
     type Output = Vec3;
     fn div(self, rhs: f32) -> Self::Output {
-        return Vec3::new(self.x / rhs, self.y / rhs, self.z / rhs);
+        Vec3::new(self.x / rhs, self.y / rhs, self.z / rhs)
     }
 }
 impl Div<Vec3> for f32 {
     type Output = Vec3;
-    fn div(self, lhs: Vec3) -> Self::Output {
-        return Vec3::new(lhs.x / self, lhs.y / self, lhs.z / self);
+    fn div(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(self / rhs.x, self / rhs.y, self / rhs.z)
     }
 }
 impl DivAssign<f32> for Vec3 {
@@ -135,12 +139,12 @@ impl Vec3 {
         }
     }
     pub fn length_squared(self) -> f32 {
-        return self.x * self.x + self.y * self.y + self.z * self.z;
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
     pub fn length(self) -> f32 {
-        return self.length_squared().sqrt();
+        self.length_squared().sqrt()
     }
     pub fn normalize(self) -> Vec3 {
-        return self / self.length();
+        self / self.length()
     }
 }

@@ -13,21 +13,21 @@ impl ImageData {
         self.height
     }
 
-    pub fn new(width: usize, height: usize) -> Self {
-        let container = vec![Color::zero(); width * height];
-        return Self {
-            width: width,
-            height: height,
+    pub fn new(new_width: usize, new_height: usize) -> Self {
+        let container = vec![Color::zero(); new_width * new_height];
+        Self {
+            width: new_width,
+            height: new_height,
             data: container.into_boxed_slice(),
-        };
+        }
     }
 
     pub fn mock() -> ImageData {
         const WIDTH: f32 = 256.0;
         const HEIGHT: f32 = 256.0;
-        let mut data = Box::new([Color::zero(); WIDTH as usize * HEIGHT as usize]);
+        let mut image_data = Box::new([Color::zero(); WIDTH as usize * HEIGHT as usize]);
 
-        for (index, fragment) in data.iter_mut().enumerate() {
+        for (index, fragment) in image_data.iter_mut().enumerate() {
             let float_index = index as f32;
             let x = float_index % WIDTH;
             let y = float_index / WIDTH;
@@ -40,7 +40,7 @@ impl ImageData {
         ImageData {
             width: WIDTH as usize,
             height: HEIGHT as usize,
-            data: data,
+            data: image_data,
         }
     }
 
@@ -56,7 +56,7 @@ impl ImageData {
                     fragment.x as i32, fragment.y as i32, fragment.z as i32,
                 );
             }
-            print!("\n");
+            println!();
         }
         eprintln!("Finish print ppm data")
     }
