@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 mod color;
 mod imagedata;
+mod objects;
 mod ray;
 mod sphere;
 mod vec3;
@@ -58,7 +59,7 @@ fn main() {
 
 fn ray_color(ray: Ray) -> Color {
     const CIRLCE_CENTER: Vec3 = Vec3::new(0.0, 0.0, -1.0);
-    let t = hit_sphere(&CIRLCE_CENTER, 0.5, &ray);
+    let t = hit_sphere(&CIRLCE_CENTER, 0.5, ray);
     if t > 0. {
         let normal_vector: Vec3 = (ray.at(t) - CIRLCE_CENTER).normalize();
         return Color::new(
