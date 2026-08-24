@@ -3,16 +3,19 @@ mod color;
 mod imagedata;
 mod objects;
 mod ray;
-mod sphere;
+mod utils;
 mod vec3;
+
+use crate::objects::hittable_list;
+use crate::objects::sphere::Sphere;
+use crate::utils::math_constant::INFINITY;
 
 use color::Color;
 use imagedata::ImageData;
+use objects::hittable::{HitRecord, Hittable};
 use ray::Ray;
-use vec3::Point3;
-use vec3::Vec3;
-
-use crate::sphere::hit_sphere;
+use std::rc::Rc;
+use vec3::{Point3, Vec3};
 
 fn main() {
     eprintln!("Start RT");
@@ -21,6 +24,11 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
+
+    // World
+    let mut worlds = hittable_list::HittableList::new();
+    worlds.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+    worlds.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera
     let focal_length = 1.0;
@@ -51,25 +59,20 @@ fn main() {
         let pixel_center = pixel00_loc + (x * pixel_delta_u) + (y * pixel_delta_v);
         let ray_direction = pixel_center - camera_center;
         let ray = Ray::new(camera_center, ray_direction);
-        *pixel = 255.999 * ray_color(ray);
+        *pixel = 255.999 * ray_color(ray, &worlds);
     }
 
     image.print_to_ppm();
 }
 
-fn ray_color(ray: Ray) -> Color {
-    const CIRLCE_CENTER: Vec3 = Vec3::new(0.0, 0.0, -1.0);
-    let t = hit_sphere(&CIRLCE_CENTER, 0.5, ray);
-    if t > 0. {
-        let normal_vector: Vec3 = (ray.at(t) - CIRLCE_CENTER).normalize();
-        return Color::new(
-            normal_vector.x + 1.,
-            normal_vector.y + 1.,
-            normal_vector.z + 1.,
-        ) * 0.5;
+fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
+    let mut record = HitRecord::new();
+
+    if world.hit(ray, 0.0, INFINITY, &mut record) {
+        return 0.5 * (record.normal + Color::with_scalar(1.0));
     }
 
     let unit_direction = ray.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+    (1.0 - a) * Color::with_scalar(1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
