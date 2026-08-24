@@ -9,6 +9,19 @@ pub struct Sphere {
     radius: f32,
 }
 
+impl Sphere {
+    pub const fn new(center: Point3, radius: f32) -> Self {
+        Self { center, radius }
+    }
+
+    pub const fn zero() -> Self {
+        Self {
+            center: Point3::zero(),
+            radius: 0.0,
+        }
+    }
+}
+
 impl Hittable for Sphere {
     fn hit(&self, ray: Ray, ray_tmin: f32, ray_tmax: f32, record: &mut HitRecord) -> bool {
         let origin_center = self.center - ray.origin();
