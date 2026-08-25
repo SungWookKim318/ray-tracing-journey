@@ -25,7 +25,7 @@ impl Camera {
         // Determine viewport dimensions.
         let focal_length = 1.0f32;
         let viewport_height = 2.0f32;
-        let viewport_width = viewport_height * (image_height as f32 / image_height as f32);
+        let viewport_width = viewport_height * (image_width as f32 / image_height as f32);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
         let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
