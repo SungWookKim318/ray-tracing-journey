@@ -1,5 +1,6 @@
 use crate::{
     color::Color,
+    imagedata::ImageData,
     objects::hittable::{HitRecord, Hittable},
     ray::Ray,
     utils::interval::Interval,
@@ -52,11 +53,25 @@ impl Camera {
 }
 impl Camera {
     // Publics
-    pub fn render(world: &dyn Hittable) {}
+    pub fn render(&self, world: &dyn Hittable) {
+        let mut image = ImageData::new(self.image_width as usize, self.image_height as usize);
+
+        for (index, pixel) in image.data.iter_mut().enumerate() {
+            let x = (index % (self.image_width as usize)) as f32;
+            let y = (index / (self.image_width as usize)) as f32;
+
+            let pixel_center =
+                self.pixel_origin + (x * self.pixel_delta_u) + (y * self.pixel_delta_v);
+            let ray_direction = pixel_center - self.center;
+            let ray = Ray::new(self.center, ray_direction);
+            *pixel = 255.999 * self.ray_color(ray, world);
+        }
+
+        image.print_to_ppm();
+    }
 
     // Private
-    fn initilize() {}
-    fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
+    fn ray_color(&self, ray: Ray, world: &dyn Hittable) -> Color {
         let mut record = HitRecord::new();
         if world.hit(ray, Interval::zero_to_inf(), &mut record) {
             return 0.5 * (record.normal + Color::with_scalar(1.0));
