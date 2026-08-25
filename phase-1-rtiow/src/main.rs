@@ -6,9 +6,8 @@ mod ray;
 mod utils;
 mod vec3;
 
-use crate::objects::hittable_list;
 use crate::objects::sphere::Sphere;
-use crate::utils::math_constant::INFINITY;
+use crate::{objects::hittable_list, utils::interval::Interval};
 
 use color::Color;
 use imagedata::ImageData;
@@ -68,7 +67,7 @@ fn main() {
 fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
     let mut record = HitRecord::new();
 
-    if world.hit(ray, 0.0, INFINITY, &mut record) {
+    if world.hit(ray, Interval::zero_to_inf(), &mut record) {
         return 0.5 * (record.normal + Color::with_scalar(1.0));
     }
 

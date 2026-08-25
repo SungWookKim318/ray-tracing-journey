@@ -1,6 +1,6 @@
-struct Interval {
-    min: f32,
-    max: f32,
+pub struct Interval {
+    pub min: f32,
+    pub max: f32,
 }
 
 impl Interval {
