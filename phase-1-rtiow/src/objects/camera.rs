@@ -18,42 +18,23 @@ pub struct Camera {
 }
 // Constrcutor
 impl Camera {
-    pub fn new(aspect_ratio: f32, image_width: i32) -> Self {
-        let image_height = (image_width as f32 / aspect_ratio) as i32;
-        let center = Point3::zero();
-
-        // Determine viewport dimensions.
-        let focal_length = 1.0f32;
-        let viewport_height = 2.0f32;
-        let viewport_width = viewport_height * (image_width as f32 / image_height as f32);
-
-        // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
-
-        // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-        let pixel_delta_u = viewport_u / image_width as f32;
-        let pixel_delta_v = viewport_v / image_height as f32;
-
-        // Claculate the location of the upper left pxiel(origin)
-        let viewport_upper_left =
-            center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
-        let pixel_origin = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
-
+    pub const fn zero() -> Self {
         Self {
-            aspect_ratio,
-            image_width,
-            image_height,
-            center,
-            pixel_origin,
-            pixel_delta_u,
-            pixel_delta_v,
+            aspect_ratio: 0.0,
+            image_width: 0,
+            image_height: 0,
+            center: Vec3::zero(),
+            pixel_origin: Vec3::zero(),
+            pixel_delta_u: Vec3::zero(),
+            pixel_delta_v: Vec3::zero(),
         }
     }
 }
 impl Camera {
     // Publics
-    pub fn render(&self, world: &dyn Hittable) {
+    pub fn render(&mut self, world: &dyn Hittable) {
+        self.setup();
+
         let mut image = ImageData::new(self.image_width as usize, self.image_height as usize);
 
         for (index, pixel) in image.data.iter_mut().enumerate() {
@@ -71,6 +52,34 @@ impl Camera {
     }
 
     // Private
+    fn setup(&mut self) {
+        assert!(
+            self.aspect_ratio > 0.0 || self.image_width > 0,
+            "Aspect Ratio and Image width is under Zero."
+        );
+
+        self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
+        self.center = Point3::zero();
+
+        // Determine viewport dimensions.
+        let focal_length = 1.0f32;
+        let viewport_height = 2.0f32;
+        let viewport_width = viewport_height * (self.image_width as f32 / self.image_height as f32);
+
+        // Calculate the vectors across the horizontal and down the vertical viewport edges.
+        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
+        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+
+        // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+        self.pixel_delta_u = viewport_u / self.image_width as f32;
+        self.pixel_delta_v = viewport_v / self.image_height as f32;
+
+        // Claculate the location of the upper left pxiel(origin)
+        let viewport_upper_left =
+            self.center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+        self.pixel_origin = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
+    }
+
     fn ray_color(&self, ray: Ray, world: &dyn Hittable) -> Color {
         let mut record = HitRecord::new();
         if world.hit(ray, Interval::zero_to_inf(), &mut record) {

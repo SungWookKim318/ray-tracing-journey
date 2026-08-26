@@ -21,9 +21,9 @@ fn main() {
     world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
     world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
-    let aspect_ratio = 16.0 / 9.0f32;
-    let image_width = 400;
-    let camera = Camera::new(aspect_ratio, image_width);
+    let mut camera = Camera::zero();
+    camera.aspect_ratio = 16.0 / 9.0f32;
+    camera.image_width = 400;
 
     camera.render(&mut world);
     eprintln!("End RT");
