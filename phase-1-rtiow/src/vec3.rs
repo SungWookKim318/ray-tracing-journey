@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use rand::RngExt;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec3 {
@@ -30,9 +31,25 @@ impl Vec3 {
     pub const fn with_scalar(v: f32) -> Self {
         Self { x: v, y: v, z: v }
     }
+
+    pub fn random_reuse(rng: &mut dyn rand::Rng) -> Self {
+        Self {
+            x: rng.random_range(0.0..=1.0),
+            y: rng.random_range(0.0..=1.0),
+            z: rng.random_range(0.0..=1.0),
+        }
+    }
+
+    pub fn random_range(rng: &mut dyn rand::Rng, min: f32, max: f32) -> Self {
+        Self {
+            x: rng.random_range(min..max),
+            y: rng.random_range(min..max),
+            z: rng.random_range(min..max),
+        }
+    }
 }
 
-use std::ops::{Index, IndexMut};
+use std::ops::{Index, IndexMut, Range};
 impl Index<usize> for Vec3 {
     type Output = f32;
     fn index(&self, i: usize) -> &f32 {
@@ -57,6 +74,8 @@ impl IndexMut<usize> for Vec3 {
 
 // Operators
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+
+use rand::Rng;
 impl Add for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Self) -> Self::Output {
