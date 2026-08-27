@@ -32,8 +32,8 @@ impl ImageData {
             let x = float_index % WIDTH;
             let y = float_index / WIDTH;
 
-            fragment.x = 255.999 * (x / WIDTH);
-            fragment.y = 255.999 * (y / HEIGHT);
+            fragment.x = x / WIDTH;
+            fragment.y = y / HEIGHT;
             fragment.z = 0.0;
         }
 
