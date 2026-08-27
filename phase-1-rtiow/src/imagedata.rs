@@ -51,10 +51,7 @@ impl ImageData {
 
         for line_fragments in self.data.chunks_exact(self.width) {
             for fragment in line_fragments {
-                print!(
-                    "{} {} {} ",
-                    fragment.x as i32, fragment.y as i32, fragment.z as i32,
-                );
+                fragment.write_color()
             }
             println!();
         }

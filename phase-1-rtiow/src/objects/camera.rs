@@ -45,7 +45,7 @@ impl Camera {
                 self.pixel_origin + (x * self.pixel_delta_u) + (y * self.pixel_delta_v);
             let ray_direction = pixel_center - self.center;
             let ray = Ray::new(self.center, ray_direction);
-            *pixel = 255.999 * self.ray_color(ray, world);
+            *pixel = self.ray_color(ray, world);
         }
 
         image.print_to_ppm();
