@@ -157,6 +157,12 @@ impl Mul<Vec3> for f32 {
         Vec3::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
+    }
+}
 impl MulAssign<f32> for Vec3 {
     fn mul_assign(&mut self, rhs: f32) {
         self.x *= rhs;
@@ -191,6 +197,7 @@ impl Vec3 {
     pub fn dot(self, rhs: Vec3) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
+
     pub fn cross(self, rhs: Vec3) -> Vec3 {
         Vec3 {
             x: self.y * rhs.z - self.z * rhs.y,
@@ -198,13 +205,20 @@ impl Vec3 {
             z: self.x * rhs.y - self.y * rhs.x,
         }
     }
+
     pub fn length_squared(self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
+
     pub fn length(self) -> f32 {
         self.length_squared().sqrt()
     }
+
     pub fn normalize(self) -> Vec3 {
         self / self.length()
+    }
+
+    pub fn refelct(self, normal: Vec3) -> Self {
+        self - 2.0 * self.dot(normal) * normal
     }
 }
