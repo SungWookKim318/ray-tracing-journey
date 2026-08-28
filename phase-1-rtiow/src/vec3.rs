@@ -70,6 +70,13 @@ impl Vec3 {
     }
 }
 
+impl Vec3 {
+    pub fn is_near_zero(&self) -> bool {
+        let epsilon = 0.00001f32;
+        self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
+    }
+}
+
 use std::ops::{Index, IndexMut};
 impl Index<usize> for Vec3 {
     type Output = f32;

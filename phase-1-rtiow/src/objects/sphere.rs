@@ -1,5 +1,10 @@
+use std::rc::Rc;
+
 use crate::{
-    objects::hittable::{HitRecord, Hittable},
+    objects::{
+        hittable::{HitRecord, Hittable},
+        materials::material::{Material, NoneMaterial},
+    },
     ray::Ray,
     utils::interval::Interval,
     vec3::Point3,
@@ -8,17 +13,23 @@ use crate::{
 pub struct Sphere {
     center: Point3,
     radius: f32,
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub const fn new(center: Point3, radius: f32) -> Self {
-        Self { center, radius }
+    pub const fn new(center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
     }
 
-    pub const fn zero() -> Self {
+    pub fn zero() -> Self {
         Self {
             center: Point3::zero(),
             radius: 0.0,
+            material: Rc::new(NoneMaterial::new()),
         }
     }
 }

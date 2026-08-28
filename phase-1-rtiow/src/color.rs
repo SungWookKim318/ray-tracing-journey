@@ -13,9 +13,9 @@ impl Color {
         let gamma_y = Color::linear_to_gamma(self.y);
         let gamma_z = Color::linear_to_gamma(self.z);
 
-        let r = (256.0 * intensity.clamp(gamma_x)) as i32;
-        let g = (256.0 * intensity.clamp(gamma_y)) as i32;
-        let b = (256.0 * intensity.clamp(gamma_z)) as i32;
+        let r = 256.0 * intensity.clamp(gamma_x);
+        let g = 256.0 * intensity.clamp(gamma_y);
+        let b = 256.0 * intensity.clamp(gamma_z);
 
         print!("{} {} {} ", r as i32, g as i32, b as i32);
     }
