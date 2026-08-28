@@ -119,7 +119,7 @@ impl Camera {
         rng: &mut dyn rand::Rng,
     ) -> Color {
         let mut record = HitRecord::new();
-        if world.hit(ray, Interval::zero_to_inf(), &mut record) {
+        if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
             // return 0.5 * (record.normal + Color::with_scalar(1.0));
             let direction = Vec3::random_hemisphere(rng, record.normal);
             return 0.5 * self.ray_color(Ray::new(record.point, direction), world, depth - 1, rng);
