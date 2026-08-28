@@ -118,10 +118,13 @@ impl Camera {
         depth: i32,
         rng: &mut dyn rand::Rng,
     ) -> Color {
+        if depth <= 0 {
+            return Color::zero();
+        }
+
         let mut record = HitRecord::new();
         if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
-            // return 0.5 * (record.normal + Color::with_scalar(1.0));
-            let direction = Vec3::random_hemisphere(rng, record.normal);
+            let direction = record.normal + Vec3::random_sphere(rng);
             return 0.5 * self.ray_color(Ray::new(record.point, direction), world, depth - 1, rng);
         }
         let unit_direction = ray.direction().normalize();
