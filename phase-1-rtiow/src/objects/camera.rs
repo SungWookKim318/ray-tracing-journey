@@ -49,7 +49,7 @@ impl Camera {
 
             for _ in 0..self.sample_per_pixel {
                 let sample_ray = self.get_ray(x, y, &mut rng);
-                *pixel += self.ray_color(sample_ray, world);
+                *pixel += self.ray_color(sample_ray, world, &mut rng);
             }
             *pixel *= self.pixel_sample_scale;
         }
@@ -106,10 +106,12 @@ impl Camera {
         )
     }
 
-    fn ray_color(&self, ray: Ray, world: &dyn Hittable) -> Color {
+    fn ray_color(&self, ray: Ray, world: &dyn Hittable, rng: &mut dyn rand::Rng) -> Color {
         let mut record = HitRecord::new();
         if world.hit(ray, Interval::zero_to_inf(), &mut record) {
-            return 0.5 * (record.normal + Color::with_scalar(1.0));
+            // return 0.5 * (record.normal + Color::with_scalar(1.0));
+            let direction = Vec3::random_hemisphere(rng, record.normal);
+            return 0.5 * self.ray_color(Ray::new(record.point, direction), world, rng);
         }
         let unit_direction = ray.direction().normalize();
         let a = 0.5 * (unit_direction.y + 1.0);

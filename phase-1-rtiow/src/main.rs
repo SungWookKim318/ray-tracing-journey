@@ -22,10 +22,10 @@ fn main() {
     world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     let mut camera = Camera::zero();
-    camera.sample_per_pixel = 100;
+    camera.sample_per_pixel = 20;
     camera.aspect_ratio = 16.0 / 9.0f32;
     camera.image_width = 400;
 
-    camera.render(&mut world);
+    camera.render(&world);
     eprintln!("End RT");
 }

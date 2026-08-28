@@ -45,9 +45,9 @@ impl Interval {
 
     pub fn clamp(&self, value: f32) -> f32 {
         if value < self.min {
-            return self.min;
+            self.min
         } else if value > self.max {
-            return self.max;
+            self.max
         } else {
             value
         }

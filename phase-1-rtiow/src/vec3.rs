@@ -32,7 +32,7 @@ impl Vec3 {
         Self { x: v, y: v, z: v }
     }
 
-    pub fn random_reuse(rng: &mut dyn rand::Rng) -> Self {
+    pub fn random(rng: &mut dyn rand::Rng) -> Self {
         Self {
             x: rng.random_range(0.0..=1.0),
             y: rng.random_range(0.0..=1.0),
@@ -47,9 +47,30 @@ impl Vec3 {
             z: rng.random_range(min..max),
         }
     }
+
+    pub fn random_sphere(rng: &mut dyn rand::Rng) -> Self {
+        loop {
+            let new_vec = Vec3::random(rng);
+            let squre_len = new_vec.length_squared();
+
+            if 1e-160 < squre_len || squre_len <= 1.0 {
+                return new_vec.normalize();
+            }
+        }
+    }
+
+    pub fn random_hemisphere(rng: &mut dyn rand::Rng, normal: Vec3) -> Self {
+        let random_sphere = Vec3::random_sphere(rng);
+
+        if random_sphere.dot(normal) > 0.0 {
+            random_sphere
+        } else {
+            -random_sphere
+        }
+    }
 }
 
-use std::ops::{Index, IndexMut, Range};
+use std::ops::{Index, IndexMut};
 impl Index<usize> for Vec3 {
     type Output = f32;
     fn index(&self, i: usize) -> &f32 {
@@ -75,7 +96,6 @@ impl IndexMut<usize> for Vec3 {
 // Operators
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use rand::Rng;
 impl Add for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Self) -> Self::Output {
