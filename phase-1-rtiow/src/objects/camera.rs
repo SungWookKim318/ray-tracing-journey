@@ -12,6 +12,7 @@ use crate::{
 pub struct Camera {
     pub aspect_ratio: f32,
     pub sample_per_pixel: i32,
+    pub max_depth: i32,
     pub image_width: i32,
     image_height: i32,
     pixel_sample_scale: f32,
@@ -26,6 +27,7 @@ impl Camera {
         Self {
             aspect_ratio: 0.0,
             sample_per_pixel: 0,
+            max_depth: 10,
             image_width: 0,
             image_height: 0,
             pixel_sample_scale: 0.0,
@@ -49,7 +51,7 @@ impl Camera {
 
             for _ in 0..self.sample_per_pixel {
                 let sample_ray = self.get_ray(x, y, &mut rng);
-                *pixel += self.ray_color(sample_ray, world, &mut rng);
+                *pixel += self.ray_color(sample_ray, world, self.max_depth, &mut rng);
             }
             *pixel *= self.pixel_sample_scale;
         }
@@ -60,7 +62,10 @@ impl Camera {
     // Private
     fn setup(&mut self) {
         assert!(
-            self.aspect_ratio > 0.0 || self.image_width > 0 || self.sample_per_pixel > 0,
+            self.aspect_ratio > 0.0
+                || self.image_width > 0
+                || self.sample_per_pixel > 0
+                || self.max_depth > 0,
             "Aspect Ratio and Image width is under Zero."
         );
         self.pixel_sample_scale = 1.0 / self.sample_per_pixel as f32;
@@ -106,12 +111,18 @@ impl Camera {
         )
     }
 
-    fn ray_color(&self, ray: Ray, world: &dyn Hittable, rng: &mut dyn rand::Rng) -> Color {
+    fn ray_color(
+        &self,
+        ray: Ray,
+        world: &dyn Hittable,
+        depth: i32,
+        rng: &mut dyn rand::Rng,
+    ) -> Color {
         let mut record = HitRecord::new();
         if world.hit(ray, Interval::zero_to_inf(), &mut record) {
             // return 0.5 * (record.normal + Color::with_scalar(1.0));
             let direction = Vec3::random_hemisphere(rng, record.normal);
-            return 0.5 * self.ray_color(Ray::new(record.point, direction), world, rng);
+            return 0.5 * self.ray_color(Ray::new(record.point, direction), world, depth - 1, rng);
         }
         let unit_direction = ray.direction().normalize();
         let a = 0.5 * (unit_direction.y + 1.0);
