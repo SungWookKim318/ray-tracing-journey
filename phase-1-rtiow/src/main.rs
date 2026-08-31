@@ -9,7 +9,7 @@ mod vec3;
 use crate::objects::{
     camera::Camera,
     hittable_list,
-    materials::{lambertian::Lambertian, material::Material, metal::Metal},
+    materials::{dielectric::Dielectric, lambertian::Lambertian, material::Material, metal::Metal},
     sphere::Sphere,
 };
 
@@ -25,7 +25,8 @@ fn main() {
     let mut world = hittable_list::HittableList::new();
     let ground_material: Rc<dyn Material> = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let center_material: Rc<dyn Material> = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let left_material: Rc<dyn Material> = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3));
+    // let left_material: Rc<dyn Material> = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3));
+    let left_material: Rc<dyn Material> = Rc::new(Dielectric::new(1.5));
     let right_material: Rc<dyn Material> = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0));
 
     world.add(Rc::new(Sphere::new(

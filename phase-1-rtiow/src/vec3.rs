@@ -75,6 +75,20 @@ impl Vec3 {
         let epsilon = 0.00001f32;
         self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
     }
+
+    pub fn refract(&self, normal_vector: Vec3, eta_i_over_eta_t: f32) -> Vec3 {
+        let incident_direction = *self;
+        let incident_cos = incident_direction.dot(-normal_vector).min(1.0);
+        // R_perp + |R| * |n| * cos(theta) * n <= 벡터의 내적을 활용
+        // R'_perp = (eta / eta') * R_perp <= 스넬의 법칙
+        let refracted_perp = eta_i_over_eta_t * (incident_direction + incident_cos * normal_vector);
+        // 이미 구한 R'_perp을 활용해서 피타고라스의 정리를 응용
+        // |R'|^2 = |R'_perp|^2 + |R'_parallel|^2
+        // 1 = |R'_perp|^2 + |R'_parallel|^2
+        let refracted_parallel =
+            -(1.0 - refracted_perp.length_squared()).abs().sqrt() * normal_vector;
+        refracted_perp + refracted_parallel
+    }
 }
 
 use std::ops::{Index, IndexMut};
