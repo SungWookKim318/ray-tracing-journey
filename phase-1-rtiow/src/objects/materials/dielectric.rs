@@ -1,3 +1,5 @@
+use rand::RngExt;
+
 use crate::{color::Color, ray::Ray};
 
 use super::material::Material;
@@ -19,7 +21,7 @@ impl Material for Dielectric {
         record: &mut crate::objects::hittable::HitRecord,
         attenuation: &mut crate::color::Color,
         scattered: &mut crate::ray::Ray,
-        _: &mut dyn rand::Rng,
+        rng: &mut dyn rand::Rng,
     ) -> bool {
         *attenuation = Color::new(1.0, 1.0, 1.0);
         let faced_reflacted_ratio = if record.is_front_face {
@@ -33,7 +35,10 @@ impl Material for Dielectric {
         let cos_theta = unit_direction.dot(-record.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
-        let direction = if faced_reflacted_ratio * sin_theta > 1.0 {
+        let reflectance_value = Dielectric::reflectance(cos_theta, faced_reflacted_ratio);
+        let direction = if faced_reflacted_ratio * sin_theta > 1.0
+            || reflectance_value > rng.random_range(0.0..=1.0)
+        {
             unit_direction.reflect(record.normal)
         } else {
             unit_direction.refract(record.normal, faced_reflacted_ratio)
@@ -41,5 +46,13 @@ impl Material for Dielectric {
 
         *scattered = Ray::new(record.point, direction);
         true
+    }
+}
+
+impl Dielectric {
+    fn reflectance(cosine: f32, refraction_index: f32) -> f32 {
+        let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        let r0_squre = r0 * r0;
+        r0_squre + (1.0 - r0_squre) * (1.0 - cosine).powi(5)
     }
 }
