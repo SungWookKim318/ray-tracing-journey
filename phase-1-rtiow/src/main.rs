@@ -61,6 +61,11 @@ fn main() {
     camera.sample_per_pixel = 100;
     camera.max_depth = 50;
 
+    camera.vertical_fov = 20.0;
+    camera.center = Point3::new(-2.0, 2.0, 1.0);
+    camera.look_at = Point3::new(0.0, 0.0, -1.0);
+    camera.up_direction = Vec3::new(0.0, 1.0, 0.0);
+
     camera.render(&world);
     eprintln!("End RT");
 }

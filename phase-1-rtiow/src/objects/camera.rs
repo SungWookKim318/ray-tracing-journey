@@ -14,12 +14,19 @@ pub struct Camera {
     pub sample_per_pixel: i32,
     pub max_depth: i32,
     pub image_width: i32,
+    pub vertical_fov: f32,
+    pub center: Point3,
+    pub look_at: Point3,
+    pub up_direction: Vec3,
+
     image_height: i32,
     pixel_sample_scale: f32,
-    center: Point3,
     pixel_origin: Point3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
+    biasis_u: Vec3,
+    biasis_v: Vec3,
+    biasis_w: Vec3,
 }
 // Constrcutor
 impl Camera {
@@ -28,13 +35,19 @@ impl Camera {
             aspect_ratio: 0.0,
             sample_per_pixel: 0,
             max_depth: 10,
+            vertical_fov: 0.0,
+            center: Vec3::zero(),
+            look_at: Vec3::new(0.0, 0.0, -1.0),
+            up_direction: Vec3::new(0.0, 1.0, 0.0),
             image_width: 0,
             image_height: 0,
             pixel_sample_scale: 0.0,
-            center: Vec3::zero(),
             pixel_origin: Vec3::zero(),
             pixel_delta_u: Vec3::zero(),
             pixel_delta_v: Vec3::zero(),
+            biasis_u: Vec3::zero(),
+            biasis_v: Vec3::zero(),
+            biasis_w: Vec3::zero(),
         }
     }
 }
@@ -61,25 +74,34 @@ impl Camera {
 
     // Private
     fn setup(&mut self) {
-        assert!(
-            self.aspect_ratio > 0.0
-                || self.image_width > 0
-                || self.sample_per_pixel > 0
-                || self.max_depth > 0,
-            "Aspect Ratio and Image width is under Zero."
-        );
+        assert!(self.aspect_ratio > 0.0, "Aspect Ratio is under Zero.");
+        assert!(self.image_width > 0, "Image width is under Zero.");
+        assert!(self.sample_per_pixel > 0, "Simple per pixel is under Zero.");
+        assert!(self.max_depth > 0, "max_depth is under Zero.");
+        assert!(self.vertical_fov > 0.0, "Vertical FOV is under Zero.");
+
         self.pixel_sample_scale = 1.0 / self.sample_per_pixel as f32;
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
-        self.center = Point3::zero();
+        self.image_height = if self.image_height < 1 {
+            1
+        } else {
+            self.image_height
+        };
 
         // Determine viewport dimensions.
-        let focal_length = 1.0f32;
-        let viewport_height = 2.0f32;
+        let focal_length = (self.center - self.look_at).length();
+        let half_theta_radian = self.vertical_fov.to_radians() / 2.0;
+        let height_fov = (half_theta_radian).tan();
+        let viewport_height = 2.0 * height_fov * focal_length;
         let viewport_width = viewport_height * (self.image_width as f32 / self.image_height as f32);
 
+        self.biasis_w = (self.center - self.look_at).normalize();
+        self.biasis_u = self.up_direction.cross(self.biasis_w).normalize();
+        self.biasis_v = self.biasis_w.cross(self.biasis_u);
+
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = viewport_width * self.biasis_u;
+        let viewport_v = -viewport_height * self.biasis_v;
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel.
         self.pixel_delta_u = viewport_u / self.image_width as f32;
@@ -87,7 +109,7 @@ impl Camera {
 
         // Claculate the location of the upper left pxiel(origin)
         let viewport_upper_left =
-            self.center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+            self.center - (focal_length * self.biasis_w) - viewport_u / 2.0 - viewport_v / 2.0;
         self.pixel_origin = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
