@@ -232,7 +232,7 @@ impl Vec3 {
         self / self.length()
     }
 
-    pub fn refelct(self, normal: Vec3) -> Self {
+    pub fn reflect(self, normal: Vec3) -> Self {
         self - 2.0 * self.dot(normal) * normal
     }
 }

@@ -34,7 +34,7 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let direction = if faced_reflacted_ratio * sin_theta > 1.0 {
-            unit_direction.refelct(record.normal)
+            unit_direction.reflect(record.normal)
         } else {
             unit_direction.refract(record.normal, faced_reflacted_ratio)
         };
