@@ -343,6 +343,7 @@ Pre-Phase 3과 달리, 본 학습 단계에서는 RT 본질부에 대해 엄격�
 
 **튜토리얼**
 - [Chris Wyman — A Gentle Introduction to DXR](https://intro-to-dxr.cwyman.org/)
+- **[Chris Wyman — DXR Tutorials, "5. Tutorial Walkthroughs and Descriptions"](https://cwyman.org/code/dxrTutors/dxr_tutors.md.html)**: Phase 3 본 학습의 확정 커리큘럼. 총 14개 튜토리얼로 구성되며, 창 생성 → 래스터/RT/컴퓨트 패스 → 씬 로드 → G-buffer → AO/거울 반사/섀도우 레이/path tracing → GGX 재질 → defocus blur 카메라 → 시간적 샘플 누적 → 반사/굴절 인터랙티브 씬까지 이어진다. 순서대로 전부 진행하는 것을 목표로 한다.
 - [NVIDIA DXR Tutorial](https://developer.nvidia.com/rtx/raytracing/dxr/tutorial/)
 - [Microsoft DirectX Raytracing Spec](https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html)
 
