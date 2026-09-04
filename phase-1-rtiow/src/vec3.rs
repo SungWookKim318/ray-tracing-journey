@@ -68,6 +68,19 @@ impl Vec3 {
             -random_sphere
         }
     }
+
+    pub fn random_unit_disk(rng: &mut dyn rand::Rng) -> Self {
+        loop {
+            let new_vec = Vec3::new(
+                rng.random_range(-1.0..=1.0),
+                rng.random_range(-1.0..=1.0),
+                0.0,
+            );
+            if new_vec.length_squared() < 1.0 {
+                return new_vec;
+            }
+        }
+    }
 }
 
 impl Vec3 {
