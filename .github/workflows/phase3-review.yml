@@ -1,4 +1,4 @@
-name: Phase 3 Dual-Agent Review (Mock)
+name: Phase 3 Dual-Agent Review
 
 on:
   pull_request:
@@ -12,74 +12,56 @@ permissions:
 
 jobs:
   reviewer-cpp:
-    name: Claude Code (C++/D3D12 관점) - mock
-    runs-on: ubuntu-latest
+    name: Claude Code (C++/D3D12 관점)
+    runs-on: [self-hosted, ai_agent]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Mock Claude Code review (C++/D3D12 perspective)
+      - name: Run Claude Code review (C++/D3D12 perspective)
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
           BASE: ${{ github.base_ref || 'main' }}
         run: |
-          echo "=== Phase 3 / reviewer-cpp (mock) ==="
-          echo "PR number : ${PR_NUMBER:-<workflow_dispatch>}"
-          echo "Branch    : ${BRANCH}"
-          echo "Base      : ${BASE}"
-          echo ""
-          echo "Changed files (vs origin/${BASE}):"
-          git diff --name-only "origin/${BASE}...HEAD" 2>/dev/null \
-            || echo "  (diff unavailable - likely workflow_dispatch from non-PR context)"
-          echo ""
-          echo "System prompt preview (first two lines):"
-          echo "  > 당신은 C++ 및 D3D12 관점에서 Phase 3 (DirectX Raytracing) 코드를 리뷰합니다."
-          echo "  > Win32/DXGI ceremony는 다루지 말고, ComPtr 사용/RAII/디스크립터 힙/리소스 상태 전이 등 추상화 측면을 살피되 알고리즘 자체에 대한 제안은 하지 마십시오."
-          echo ""
+          set -eu
 
-          cat > review-cpp.md <<'MOCK_EOF'
-          # Mock review - Phase 3 (C++/D3D12 perspective)
+          DIFF=$(git diff "origin/${BASE}...HEAD" -- phase-3-dxr 2>/dev/null || true)
+          if [ -z "$DIFF" ]; then
+            echo "No diff available (likely workflow_dispatch from a non-PR context). Writing empty review."
+            printf '# Claude Code review - Phase 3 (C++/D3D12 perspective)\n\n(diff was empty or unavailable; nothing to review)\n' > review-cpp.md
+            exit 0
+          fi
 
-          Placeholder produced by the mock workflow. When the real Claude Code
-          CLI is wired in, this file will contain review comments focused on
-          ComPtr lifetime discipline, RAII for D3D12 resources, descriptor
-          heap layout, resource state transitions, and non-RT HLSL syntax -
-          deliberately excluding Win32 and DXGI boilerplate (classified as
-          ceremony in docs/learning-plan.md section 2.3).
-          MOCK_EOF
+          SYSTEM_PROMPT=$(cat <<'SYS'
+          당신은 C++ 및 D3D12 관점에서 Phase 3 (DirectX Raytracing) 코드를 리뷰합니다.
+          Win32/DXGI/D3D12 device 초기화 등 ceremony는 다루지 마십시오 (학습 대상이 아님).
+          다음 항목을 중심으로 살피되 알고리즘 자체에 대한 제안은 하지 마십시오.
 
-          echo "Wrote review-cpp.md (mock content)"
+          - ComPtr 사용 일관성 및 leak 가능성
+          - RAII 패턴 (D3D12 리소스, fence, command allocator)
+          - 디스크립터 힙 레이아웃 결정 및 핸들 관리
+          - 리소스 상태 전이(barrier) 누락 및 중복
+          - 비-RT HLSL syntax 및 root signature 매핑
+          - C++ naming, modern C++(스마트 포인터, span 등) 관용구
 
-      # TODO: Uncomment this block, switch runs-on above to
-      # [self-hosted, ai_agent], and remove the mock step above.
-      # - name: Run Claude Code review
-      #   env:
-      #     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      #   run: |
-      #     CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
-      #     claude-code review \
-      #       --files $CHANGED_FILES \
-      #       --output review-cpp.md \
-      #       --system-prompt "$(cat <<'PROMPT'
-      #     당신은 C++ 및 D3D12 관점에서 Phase 3 (DirectX Raytracing) 코드를 리뷰합니다.
-      #     Win32/DXGI/D3D12 device 초기화 등 ceremony는 다루지 마십시오 (학습 대상이 아님).
-      #     다음 항목을 중심으로 살피되 알고리즘 자체에 대한 제안은 하지 마십시오.
-      #
-      #     - ComPtr 사용 일관성 및 leak 가능성
-      #     - RAII 패턴 (D3D12 리소스, fence, command allocator)
-      #     - 디스크립터 힙 레이아웃 결정 및 핸들 관리
-      #     - 리소스 상태 전이(barrier) 누락 및 중복
-      #     - 비-RT HLSL syntax 및 root signature 매핑
-      #     - C++ naming, modern C++(스마트 포인터, span 등) 관용구
-      #
-      #     다음 사항은 금지됩니다.
-      #     - 코드 수정안 직접 제시
-      #     - BLAS/TLAS 빌드 로직, SBT 레이아웃, RT 셰이더 알고리즘에 대한 제안
-      #     - Win32, DXGI swapchain 등 ceremony 영역 지적
-      #     PROMPT
-      #     )"
+          다음 사항은 금지됩니다.
+          - 코드 수정안 직접 제시
+          - BLAS/TLAS 빌드 로직, SBT 레이아웃, RT 셰이더 알고리즘에 대한 제안
+          - Win32, DXGI swapchain 등 ceremony 영역 지적
+
+          출력은 review-cpp.md에 그대로 들어갈 마크다운 리뷰 코멘트로만 작성하십시오.
+          SYS
+          )
+
+          PROMPT="$SYSTEM_PROMPT
+
+          아래는 이번 PR의 diff입니다 (phase-3-dxr 하위만):
+
+          \`\`\`diff
+          $DIFF
+          \`\`\`"
+
+          claude -p "$PROMPT" --output-format text > review-cpp.md
 
       - uses: actions/upload-artifact@v4
         with:
@@ -87,76 +69,58 @@ jobs:
           path: review-cpp.md
 
   reviewer-algorithm:
-    name: Codex CLI (DXR 알고리즘 관점, BLAS/TLAS/SBT 포함) - mock
-    runs-on: ubuntu-latest
+    name: Codex CLI (DXR 알고리즘 관점, BLAS/TLAS/SBT 포함)
+    runs-on: [self-hosted, ai_agent]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Mock Codex CLI review (algorithm perspective)
+      - name: Run Codex CLI review (algorithm perspective)
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
           BASE: ${{ github.base_ref || 'main' }}
         run: |
-          echo "=== Phase 3 / reviewer-algorithm (mock) ==="
-          echo "PR number : ${PR_NUMBER:-<workflow_dispatch>}"
-          echo "Branch    : ${BRANCH}"
-          echo "Base      : ${BASE}"
-          echo ""
-          echo "Changed files (vs origin/${BASE}):"
-          git diff --name-only "origin/${BASE}...HEAD" 2>/dev/null \
-            || echo "  (diff unavailable - likely workflow_dispatch from non-PR context)"
-          echo ""
-          echo "System prompt preview (first two lines):"
-          echo "  > 당신은 DXR API 사용 정확성 및 RT 알고리즘 측면에서 Phase 3 코드를 리뷰합니다."
-          echo "  > BLAS/TLAS 빌드 파라미터, SBT 레이아웃, RT 셰이더 stage 간 계약을 중점적으로 살피되 C++ 관용구는 다루지 마십시오."
-          echo ""
+          set -eu
 
-          cat > review-algorithm.md <<'MOCK_EOF'
-          # Mock review - Phase 3 (DXR algorithm perspective)
+          DIFF=$(git diff "origin/${BASE}...HEAD" -- phase-3-dxr 2>/dev/null || true)
+          if [ -z "$DIFF" ]; then
+            echo "No diff available (likely workflow_dispatch from a non-PR context). Writing empty review."
+            printf '# Codex CLI review - Phase 3 (DXR algorithm perspective)\n\n(diff was empty or unavailable; nothing to review)\n' > review-algorithm.md
+            exit 0
+          fi
 
-          Placeholder produced by the mock workflow. When the real Codex CLI
-          is wired in, this file will contain review comments focused on
-          BLAS/TLAS build parameter correctness, scratch buffer sizing, SBT
-          record layout and alignment, shader identifier matching, RT shader
-          stage contracts (raygen/closesthit/miss/anyhit/intersection), and
-          RayQuery vs RT pipeline logical equivalence.
-          MOCK_EOF
+          SYSTEM_PROMPT=$(cat <<'SYS'
+          당신은 DXR API 사용 정확성 및 RT 알고리즘 측면에서 Phase 3 (DirectX Raytracing)
+          코드를 리뷰합니다. C++ 관용구는 다루지 마십시오. 다음 항목을 중점적으로 살피십시오.
 
-          echo "Wrote review-algorithm.md (mock content)"
+          - BLAS/TLAS 빌드 파라미터 정확성 (D3D12_RAYTRACING_*_INPUTS, geometry/instance desc)
+          - Scratch buffer 사이즈 계산 및 prebuild info 활용
+          - SBT 레이아웃: record stride, alignment (D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT),
+            shader identifier (D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) 매칭
+          - RT 셰이더 stage 간 계약: raygen ray descriptor, closesthit attribute usage,
+            miss payload 처리, anyhit accept/ignore, custom intersection의 ReportHit
+          - TraceRay 파라미터 (RayFlags, instance inclusion mask, ray contribution to hitgroup index)
+          - RayQuery (inline) 와 RT pipeline 의 논리적 동등성 (병행 작성 시)
+          - HLSL의 RT extension 사용 정확성
 
-      # TODO: Uncomment this block, switch runs-on above to
-      # [self-hosted, ai_agent], and remove the mock step above.
-      # - name: Run Codex CLI review
-      #   env:
-      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      #   run: |
-      #     CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
-      #     codex review \
-      #       --files $CHANGED_FILES \
-      #       --output review-algorithm.md \
-      #       --system-prompt "$(cat <<'PROMPT'
-      #     당신은 DXR API 사용 정확성 및 RT 알고리즘 측면에서 Phase 3 (DirectX Raytracing)
-      #     코드를 리뷰합니다. C++ 관용구는 다루지 마십시오. 다음 항목을 중점적으로 살피십시오.
-      #
-      #     - BLAS/TLAS 빌드 파라미터 정확성 (D3D12_RAYTRACING_*_INPUTS, geometry/instance desc)
-      #     - Scratch buffer 사이즈 계산 및 prebuild info 활용
-      #     - SBT 레이아웃: record stride, alignment (D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT),
-      #       shader identifier (D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES) 매칭
-      #     - RT 셰이더 stage 간 계약: raygen ray descriptor, closesthit attribute usage,
-      #       miss payload 처리, anyhit accept/ignore, custom intersection의 ReportHit
-      #     - TraceRay 파라미터 (RayFlags, instance inclusion mask, ray contribution to hitgroup index)
-      #     - RayQuery (inline) 와 RT pipeline 의 논리적 동등성 (병행 작성 시)
-      #     - HLSL의 RT extension 사용 정확성
-      #
-      #     다음 사항은 금지됩니다.
-      #     - 코드 수정안 직접 제시
-      #     - "더 좋은 SBT 레이아웃" 등 알고리즘적 대안 제안 (학습자가 도서/샘플을 통해 진행 중)
-      #     - C++ 관용구, ComPtr, RAII 등 추상화 측면 언급
-      #     PROMPT
-      #     )"
+          다음 사항은 금지됩니다.
+          - 코드 수정안 직접 제시
+          - "더 좋은 SBT 레이아웃" 등 알고리즘적 대안 제안 (학습자가 도서/샘플을 통해 진행 중)
+          - C++ 관용구, ComPtr, RAII 등 추상화 측면 언급
+
+          출력은 review-algorithm.md에 그대로 들어갈 마크다운 리뷰 코멘트로만 작성하십시오.
+          SYS
+          )
+
+          PROMPT="$SYSTEM_PROMPT
+
+          아래는 이번 PR의 diff입니다 (phase-3-dxr 하위만):
+
+          \`\`\`diff
+          $DIFF
+          \`\`\`"
+
+          codex exec "$PROMPT" > review-algorithm.md
 
       - uses: actions/upload-artifact@v4
         with:
@@ -164,9 +128,9 @@ jobs:
           path: review-algorithm.md
 
   synthesizer:
-    name: Codex CLI Synthesizer - mock
+    name: Codex CLI Synthesizer
     needs: [reviewer-cpp, reviewer-algorithm]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ai_agent]
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -178,104 +142,61 @@ jobs:
           name: review-algorithm
           path: ./artifacts/review-algorithm
 
-      - name: Mock synthesizer
+      - name: Run Codex CLI synthesizer
         run: |
-          echo "=== Phase 3 / synthesizer (mock) ==="
-          echo ""
-          echo "Verifying upstream artifacts..."
-          test -f ./artifacts/review-cpp/review-cpp.md && echo "  [ok] review-cpp.md"
-          test -f ./artifacts/review-algorithm/review-algorithm.md && echo "  [ok] review-algorithm.md"
-          echo ""
-          echo "--- review-cpp.md ---"
-          cat ./artifacts/review-cpp/review-cpp.md
-          echo ""
-          echo "--- review-algorithm.md ---"
-          cat ./artifacts/review-algorithm/review-algorithm.md
-          echo ""
-          echo "--- Mock synthesized output ---"
-          echo "## Agreed (both reviewers flagged)"
-          echo "(none - mock run)"
-          echo ""
-          echo "## Single-reviewer observations"
-          echo "[Claude only] mock placeholder from review-cpp"
-          echo "[Codex only]  mock placeholder from review-algorithm"
-          echo ""
-          echo "## Conflicts (learner decision required)"
-          echo "(none - mock run)"
-          echo ""
-          echo "Mock dual-agent review completed - real agent calls are commented out below"
+          set -eu
 
-      - name: Post mock synthesized review to PR
+          REVIEW_CPP=$(cat ./artifacts/review-cpp/review-cpp.md)
+          REVIEW_ALGORITHM=$(cat ./artifacts/review-algorithm/review-algorithm.md)
+
+          SYSTEM_PROMPT=$(cat <<'SYS'
+          당신은 두 AI 리뷰어의 코드 리뷰 결과를 통합하는 정리자입니다.
+          코드 자체를 리뷰하지 마십시오. 두 입력 리뷰만을 분석합니다.
+
+          다음 세 카테고리로 출력을 구성하십시오.
+
+          ## Agreed (both reviewers flagged)
+          두 리뷰어가 같은 또는 매우 유사한 지적을 한 항목.
+          하나의 통합된 코멘트로 정리하되 원본의 핵심 표현은 보존합니다.
+
+          ## Single-reviewer observations
+          한 리뷰어만 지적한 항목. 원본을 그대로 인용하고
+          [Claude only] 또는 [Codex only] 태그를 붙입니다.
+          학습자 판단이 필요한 회색 지대임을 명시합니다.
+
+          ## Conflicts (learner decision required)
+          같은 코드에 대해 서로 다른 또는 반대되는 제안을 한 항목.
+          두 의견을 나란히 인용하고 [Conflict] 태그를 붙입니다.
+          어느 쪽이 옳다는 판단은 절대 하지 마십시오.
+          이 영역은 학습자가 trade-off를 명시적으로 판단해야 하는 학습 지점입니다.
+          Phase 3의 BLAS/TLAS/SBT 관련 conflict는 학습 가치가 매우 높으므로
+          판단 근거를 PR 답글에 명시하도록 학습자에게 권유합니다.
+
+          규칙:
+          - 새 의견을 추가하지 마십시오
+          - 리뷰어들의 표현을 가능한 한 보존하십시오
+          - 통합을 위해 의미를 변경하지 마십시오
+          - 학습자에게 "어느 쪽을 따르라" 식의 지시 금지
+
+          출력은 synthesized.md에 그대로 들어갈 마크다운으로만 작성하십시오.
+          SYS
+          )
+
+          PROMPT="$SYSTEM_PROMPT
+
+          --- review-cpp.md (Claude Code, C++/D3D12 관점) ---
+          $REVIEW_CPP
+
+          --- review-algorithm.md (Codex CLI, DXR 알고리즘 관점) ---
+          $REVIEW_ALGORITHM"
+
+          codex exec "$PROMPT" > synthesized.md
+
+      - name: Post synthesized review to PR
         if: github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat > mock-comment.md <<'COMMENT_EOF'
-          **Mock Dual-Agent Review (Phase 3)**
-
-          Placeholder comment produced by the mock workflow. After activation,
-          the real synthesized review from Codex CLI will replace this content.
-
-          ## Agreed (both reviewers flagged)
-          (none - mock run)
-
-          ## Single-reviewer observations
-          - [Claude only] mock placeholder from review-cpp
-          - [Codex only]  mock placeholder from review-algorithm
-
-          ## Conflicts (learner decision required)
-          (none - mock run)
-
-          ---
-          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COMMENT_EOF
           gh pr comment ${{ github.event.pull_request.number }} \
             --repo ${{ github.repository }} \
-            --body-file mock-comment.md
-
-      # TODO: Uncomment this block, switch runs-on above to
-      # [self-hosted, ai_agent], and remove the mock steps above.
-      # - name: Run Codex CLI synthesizer
-      #   env:
-      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      #   run: |
-      #     codex synthesize \
-      #       --inputs ./artifacts/review-cpp/review-cpp.md \
-      #                ./artifacts/review-algorithm/review-algorithm.md \
-      #       --output synthesized.md \
-      #       --system-prompt "$(cat <<'PROMPT'
-      #     당신은 두 AI 리뷰어의 코드 리뷰 결과를 통합하는 정리자입니다.
-      #     코드 자체를 리뷰하지 마십시오. 두 입력 리뷰만을 분석합니다.
-      #
-      #     다음 세 카테고리로 출력을 구성하십시오.
-      #
-      #     ## Agreed (both reviewers flagged)
-      #     두 리뷰어가 같은 또는 매우 유사한 지적을 한 항목.
-      #     하나의 통합된 코멘트로 정리하되 원본의 핵심 표현은 보존합니다.
-      #
-      #     ## Single-reviewer observations
-      #     한 리뷰어만 지적한 항목. 원본을 그대로 인용하고
-      #     [Claude only] 또는 [Codex only] 태그를 붙입니다.
-      #     학습자 판단이 필요한 회색 지대임을 명시합니다.
-      #
-      #     ## Conflicts (learner decision required)
-      #     같은 코드에 대해 서로 다른 또는 반대되는 제안을 한 항목.
-      #     두 의견을 나란히 인용하고 [Conflict] 태그를 붙입니다.
-      #     어느 쪽이 옳다는 판단은 절대 하지 마십시오.
-      #     이 영역은 학습자가 trade-off를 명시적으로 판단해야 하는 학습 지점입니다.
-      #     Phase 3의 BLAS/TLAS/SBT 관련 conflict는 학습 가치가 매우 높으므로
-      #     판단 근거를 PR 답글에 명시하도록 학습자에게 권유합니다.
-      #
-      #     규칙:
-      #     - 새 의견을 추가하지 마십시오
-      #     - 리뷰어들의 표현을 가능한 한 보존하십시오
-      #     - 통합을 위해 의미를 변경하지 마십시오
-      #     - 학습자에게 "어느 쪽을 따르라" 식의 지시 금지
-      #     PROMPT
-      #     )"
-      # - name: Post synthesized review to PR
-      #   if: github.event_name == 'pull_request'
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gh pr comment ${{ github.event.pull_request.number }} --body-file synthesized.md
+            --body-file synthesized.md
