@@ -1,4 +1,4 @@
-use crate::Ray;
+use crate::ray::Ray;
 use crate::objects::hittable::{HitRecord, Hittable};
 use crate::utils::interval::Interval;
 use std::rc::Rc;

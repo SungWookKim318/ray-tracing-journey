@@ -15,7 +15,6 @@ use crate::objects::{
 
 use color::Color;
 use rand::RngExt;
-use ray::Ray;
 use std::rc::Rc;
 use vec3::{Point3, Vec3};
 

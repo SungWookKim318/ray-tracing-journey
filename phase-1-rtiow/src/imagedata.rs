@@ -1,4 +1,4 @@
-use crate::Color;
+use crate::color::Color;
 pub(crate) struct ImageData {
     width: usize,
     height: usize,

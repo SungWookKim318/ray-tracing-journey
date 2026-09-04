@@ -1,8 +1,7 @@
 use std::rc::Rc;
 
-use crate::Point3;
-use crate::Ray;
-use crate::Vec3;
+use crate::ray::Ray;
+use crate::vec3::{Point3, Vec3};
 use crate::objects::materials::material::Material;
 use crate::objects::materials::material::NoneMaterial;
 use crate::utils::interval::Interval;
