@@ -4,6 +4,7 @@ use std::rc::Rc;
 use rand::RngExt;
 
 use super::hittable::Hittable;
+use crate::objects::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::utils::{aabb::Aabb, interval::Interval};
 
@@ -14,7 +15,10 @@ pub struct BvhNode {
 }
 
 impl BvhNode {
-    // pub fn new_root(list: hittable_list) -> Self {}
+    pub fn new_root(list: &mut HittableList) -> Self {
+        let len = list.objects.len();
+        Self::generate_leafs(&mut list.objects, 0, len)
+    }
 
     fn generate_leafs(objects: &mut Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> Self {
         let mut rng = rand::rng();

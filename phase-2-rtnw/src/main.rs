@@ -7,6 +7,7 @@ mod utils;
 mod vec3;
 
 use crate::objects::{
+    bvh::BvhNode,
     camera::Camera,
     hittable_list,
     materials::{dielectric::Dielectric, lambertian::Lambertian, material::Material, metal::Metal},
@@ -94,11 +95,13 @@ fn main() {
         Rc::clone(&right_material),
     )));
 
+    let bvh_world = BvhNode::new_root(&mut world);
+
     let mut camera = Camera::zero();
     camera.aspect_ratio = 16.0 / 9.0f32;
     camera.image_width = 400;
-    camera.sample_per_pixel = 100;
-    camera.max_depth = 50;
+    camera.sample_per_pixel = 50;
+    camera.max_depth = 20;
 
     camera.vertical_fov = 20.0;
     camera.center = Point3::new(13.0, 2.0, 3.0);
@@ -108,6 +111,6 @@ fn main() {
     camera.defocus_angle = 0.6;
     camera.focus_dist = 10.0;
 
-    camera.render(&world);
+    camera.render(&bvh_world);
     eprintln!("End RT");
 }
