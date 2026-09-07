@@ -1,3 +1,4 @@
+#[derive(Copy, Clone, Debug)]
 pub struct Interval {
     pub min: f32,
     pub max: f32,
@@ -28,6 +29,20 @@ impl Interval {
             max: f32::INFINITY,
         }
     }
+
+    pub fn merge(interval_1: Self, interval_2: Self) -> Self {
+        let min = if interval_1.min <= interval_2.min {
+            interval_1.min
+        } else {
+            interval_2.min
+        };
+        let max = if interval_1.max >= interval_2.max {
+            interval_1.max
+        } else {
+            interval_2.max
+        };
+        Self { min, max }
+    }
 }
 
 impl Interval {
@@ -50,6 +65,14 @@ impl Interval {
             self.max
         } else {
             value
+        }
+    }
+
+    pub fn expand(&self, delta: f32) -> Self {
+        let padding = delta / 2.0;
+        Self {
+            min: self.min - padding,
+            max: self.max + padding,
         }
     }
 }

@@ -6,7 +6,7 @@ use crate::{
         materials::material::{Material, NoneMaterial},
     },
     ray::Ray,
-    utils::interval::Interval,
+    utils::{aabb::Aabb, interval::Interval},
     vec3::{Point3, Vec3},
 };
 
@@ -14,14 +14,20 @@ pub struct Sphere {
     center: Ray,
     radius: f32,
     material: Rc<dyn Material>,
+    bounding_box: Aabb,
 }
 
 impl Sphere {
     pub fn new(static_center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
+        let radius_vector = Vec3::with_scalar(radius);
         Self {
             center: Ray::new(static_center, Vec3::zero(), 0.0),
             radius,
             material,
+            bounding_box: Aabb::new_by_gap(
+                static_center - radius_vector,
+                static_center + radius_vector,
+            ),
         }
     }
 
@@ -31,10 +37,21 @@ impl Sphere {
         radius: f32,
         material: Rc<dyn Material>,
     ) -> Self {
+        let center = Ray::new(center1, center2 - center1, 0.0);
+        let radius_vector = Vec3::with_scalar(radius);
+        let box_at_zero = Aabb::new_by_gap(
+            center.at(0.0) - radius_vector,
+            center.at(0.0) + radius_vector,
+        );
+        let box_at_final = Aabb::new_by_gap(
+            center.at(1.0) - radius_vector,
+            center.at(1.0) + radius_vector,
+        );
         Self {
-            center: Ray::new(center1, center2 - center1, 0.0),
+            center,
             radius,
             material,
+            bounding_box: Aabb::merge_new(box_at_zero, box_at_final),
         }
     }
 
@@ -43,6 +60,11 @@ impl Sphere {
             center: Ray::zero(),
             radius: 0.0,
             material: Rc::new(NoneMaterial::new()),
+            bounding_box: Aabb {
+                x_interval: Interval::new(0.0, 0.0),
+                y_interval: Interval::new(0.0, 0.0),
+                z_interval: Interval::new(0.0, 0.0),
+            },
         }
     }
 }
@@ -73,9 +95,13 @@ impl Hittable for Sphere {
         record.t = root;
         record.point = ray.at(record.t);
         record.normal = (record.point - current_center) / self.radius;
-        let outward_normal = record.normal.clone();
+        let outward_normal = record.normal;
         record.set_face_normal(&ray, &outward_normal);
         record.material = Rc::clone(&self.material);
         true
+    }
+
+    fn bounding_box(&self) -> Aabb {
+        self.bounding_box
     }
 }
