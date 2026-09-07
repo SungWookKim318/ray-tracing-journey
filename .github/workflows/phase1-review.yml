@@ -4,7 +4,13 @@ on:
   pull_request:
     paths:
       - 'phase-1-rtiow/**'
+      - '!phase-1-rtiow/AGENTS.md'
+      - '!phase-1-rtiow/CLAUDE.md'
   workflow_dispatch:
+
+concurrency:
+  group: phase-1-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -23,7 +29,8 @@ jobs:
         env:
           BASE: ${{ github.base_ref || 'main' }}
         run: |
-          set -eu
+          set -euo pipefail
+          claude auth status
 
           DIFF=$(git diff "origin/${BASE}...HEAD" -- phase-1-rtiow 2>/dev/null || true)
           if [ -z "$DIFF" ]; then
@@ -59,7 +66,8 @@ jobs:
           $DIFF
           \`\`\`"
 
-          claude -p "$PROMPT" --output-format text > review-rust.md
+          claude -p "$PROMPT" --output-format text \
+            --model claude-sonnet-5 --effort medium --tools "" | tee review-rust.md
 
       - uses: actions/upload-artifact@v4
         with:
@@ -78,7 +86,8 @@ jobs:
         env:
           BASE: ${{ github.base_ref || 'main' }}
         run: |
-          set -eu
+          set -euo pipefail
+          codex login status
 
           DIFF=$(git diff "origin/${BASE}...HEAD" -- phase-1-rtiow 2>/dev/null || true)
           if [ -z "$DIFF" ]; then
@@ -114,7 +123,10 @@ jobs:
           $DIFF
           \`\`\`"
 
-          codex exec "$PROMPT" > review-algorithm.md
+          codex --ask-for-approval never exec --model gpt-5.6-terra \
+            -c 'model_reasoning_effort="medium"' \
+            --sandbox read-only \
+            "$PROMPT" | tee review-algorithm.md
 
       - uses: actions/upload-artifact@v4
         with:
@@ -138,7 +150,8 @@ jobs:
 
       - name: Run Codex CLI synthesizer
         run: |
-          set -eu
+          set -euo pipefail
+          codex login status
 
           REVIEW_RUST=$(cat ./artifacts/review-rust/review-rust.md)
           REVIEW_ALGORITHM=$(cat ./artifacts/review-algorithm/review-algorithm.md)
@@ -182,7 +195,10 @@ jobs:
           --- review-algorithm.md (Codex CLI, 알고리즘 관점) ---
           $REVIEW_ALGORITHM"
 
-          codex exec "$PROMPT" > synthesized.md
+          codex --ask-for-approval never exec --model gpt-5.6-terra \
+            -c 'model_reasoning_effort="medium"' \
+            --sandbox read-only \
+            "$PROMPT" | tee synthesized.md
 
       - name: Post synthesized review to PR
         if: github.event_name == 'pull_request'
