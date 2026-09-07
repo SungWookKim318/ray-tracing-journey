@@ -42,8 +42,11 @@ fn main() {
                 // Lambertian
                 let albedo = Color::random(&mut rng) * Color::random(&mut rng);
                 let new_material: Rc<dyn Material> = Rc::new(Lambertian::new(albedo));
-                world.add(Rc::new(Sphere::new(
+                let moved_position =
+                    object_position + Vec3::new(0.0, rng.random_range(0.0..=0.5), 0.0);
+                world.add(Rc::new(Sphere::moved_new(
                     object_position,
+                    moved_position,
                     0.2,
                     Rc::clone(&new_material),
                 )));
@@ -94,7 +97,7 @@ fn main() {
     let mut camera = Camera::zero();
     camera.aspect_ratio = 16.0 / 9.0f32;
     camera.image_width = 400;
-    camera.sample_per_pixel = 200;
+    camera.sample_per_pixel = 100;
     camera.max_depth = 50;
 
     camera.vertical_fov = 20.0;

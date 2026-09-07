@@ -44,7 +44,7 @@ impl Material for Dielectric {
             unit_direction.refract(record.normal, faced_reflacted_ratio)
         };
 
-        *scattered = Ray::new(record.point, direction);
+        *scattered = Ray::new(record.point, direction, ray_in.time());
         true
     }
 }

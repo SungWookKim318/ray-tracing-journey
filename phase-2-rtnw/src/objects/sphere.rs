@@ -7,19 +7,32 @@ use crate::{
     },
     ray::Ray,
     utils::interval::Interval,
-    vec3::Point3,
+    vec3::{Point3, Vec3},
 };
 
 pub struct Sphere {
-    center: Point3,
+    center: Ray,
     radius: f32,
     material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub const fn new(center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
+    pub fn new(static_center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
         Self {
-            center,
+            center: Ray::new(static_center, Vec3::zero(), 0.0),
+            radius,
+            material,
+        }
+    }
+
+    pub fn moved_new(
+        center1: Point3,
+        center2: Point3,
+        radius: f32,
+        material: Rc<dyn Material>,
+    ) -> Self {
+        Self {
+            center: Ray::new(center1, center2 - center1, 0.0),
             radius,
             material,
         }
@@ -27,7 +40,7 @@ impl Sphere {
 
     pub fn zero() -> Self {
         Self {
-            center: Point3::zero(),
+            center: Ray::zero(),
             radius: 0.0,
             material: Rc::new(NoneMaterial::new()),
         }
@@ -36,7 +49,8 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: Ray, ray_t: Interval, record: &mut HitRecord) -> bool {
-        let origin_center = self.center - ray.origin();
+        let current_center = self.center.at(ray.time());
+        let origin_center = current_center - ray.origin();
         let a = ray.direction().length_squared();
         let h = ray.direction().dot(origin_center);
         let c = origin_center.length_squared() - self.radius * self.radius;
@@ -58,8 +72,8 @@ impl Hittable for Sphere {
 
         record.t = root;
         record.point = ray.at(record.t);
-        record.normal = (record.point - self.center) / self.radius;
-        let outward_normal = (record.point - self.center) / self.radius;
+        record.normal = (record.point - current_center) / self.radius;
+        let outward_normal = record.normal.clone();
         record.set_face_normal(&ray, &outward_normal);
         record.material = Rc::clone(&self.material);
         true
