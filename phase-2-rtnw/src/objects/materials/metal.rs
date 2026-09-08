@@ -28,6 +28,7 @@ impl Material for Metal {
         let fuzzed_reflected = reflected.normalize() + (self.fuzz * Vec3::random_sphere(rng));
         *scattered = Ray::new(record.point, fuzzed_reflected, ray_in.time());
         *attenuation = self.albedo;
-        true
+
+        scattered.direction().dot(record.normal) > 0.0
     }
 }

@@ -33,7 +33,6 @@ impl HitRecord {
         } else {
             -outward_normal
         }
-        //self.is_front_face ? *outward_normal : -*outward_normal;
     }
 }
 
