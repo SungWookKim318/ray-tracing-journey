@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug phase-1-rtiow",
+      "cargo": {
+        "args": ["build", "--bin=phase-1-rtiow", "--manifest-path=${workspaceFolder}/phase-1-rtiow/Cargo.toml"]
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}/phase-1-rtiow"
+    }
+  ]
+}
