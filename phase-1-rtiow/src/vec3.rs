@@ -50,10 +50,10 @@ impl Vec3 {
 
     pub fn random_sphere(rng: &mut dyn rand::Rng) -> Self {
         loop {
-            let new_vec = Vec3::random(rng);
-            let squre_len = new_vec.length_squared();
+            let new_vec = Vec3::random_range(rng, -1.0, 1.0);
+            let square_len = new_vec.length_squared();
 
-            if 1e-160 < squre_len || squre_len <= 1.0 {
+            if 0.001 < square_len && square_len <= 1.0 {
                 return new_vec.normalize();
             }
         }

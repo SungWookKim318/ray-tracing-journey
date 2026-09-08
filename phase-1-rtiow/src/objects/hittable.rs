@@ -1,10 +1,10 @@
 use std::rc::Rc;
 
-use crate::ray::Ray;
-use crate::vec3::{Point3, Vec3};
 use crate::objects::materials::material::Material;
 use crate::objects::materials::material::NoneMaterial;
+use crate::ray::Ray;
 use crate::utils::interval::Interval;
+use crate::vec3::{Point3, Vec3};
 
 pub struct HitRecord {
     pub point: Point3,
@@ -32,7 +32,6 @@ impl HitRecord {
         } else {
             -outward_normal
         }
-        //self.is_front_face ? *outward_normal : -*outward_normal;
     }
 }
 

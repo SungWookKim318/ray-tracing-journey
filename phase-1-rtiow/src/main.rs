@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 mod color;
-mod imagedata;
+mod image_data;
 mod objects;
 mod ray;
 mod utils;
