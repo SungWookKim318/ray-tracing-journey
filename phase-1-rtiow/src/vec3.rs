@@ -91,7 +91,7 @@ impl Vec3 {
 
     pub fn refract(&self, normal_vector: Vec3, eta_i_over_eta_t: f32) -> Vec3 {
         let incident_direction = *self;
-        let incident_cos = incident_direction.dot(-normal_vector).min(1.0);
+        let incident_cos = incident_direction.dot(-normal_vector).clamp(-1.0, 1.0);
         // R_perp + |R| * |n| * cos(theta) * n <= 벡터의 내적을 활용
         // R'_perp = (eta / eta') * R_perp <= 스넬의 법칙
         let refracted_perp = eta_i_over_eta_t * (incident_direction + incident_cos * normal_vector);
