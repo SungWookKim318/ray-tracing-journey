@@ -73,6 +73,16 @@ impl Aabb {
 
         for axis_index in 0..=2 {
             let axis_interval = self.axis_index_interval(axis_index);
+
+            if ray_direction[axis_index] == -0.0 && ray_direction[axis_index] == 0.0 {
+                // Ray direction is parellal with space. check origin of ray axis is contain space if not. it never hit space
+                if axis_interval.contain(ray_origin[axis_index]) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+
             let axis_divide = 1.0 / ray_direction[axis_index];
 
             let t0 = (axis_interval.min - ray_origin[axis_index]) * axis_divide;
@@ -101,11 +111,18 @@ impl Aabb {
         true
     }
 
-    pub fn merge(&self, other: Self) -> Self {
+    #[must_use]
+    pub fn get_merge(&self, other: Self) -> Self {
         Self {
             x_interval: Interval::merge(self.x_interval, other.x_interval),
             y_interval: Interval::merge(self.y_interval, other.y_interval),
             z_interval: Interval::merge(self.z_interval, other.z_interval),
         }
+    }
+
+    pub fn extend(&mut self, other: Self) {
+        self.x_interval = Interval::merge(self.x_interval, other.x_interval);
+        self.y_interval = Interval::merge(self.y_interval, other.y_interval);
+        self.z_interval = Interval::merge(self.z_interval, other.z_interval);
     }
 }

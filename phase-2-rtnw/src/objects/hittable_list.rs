@@ -25,7 +25,7 @@ impl HittableList {
         let object_bounding_box = object.bounding_box();
 
         self.objects.push(object);
-        self.bounding_box.merge(object_bounding_box);
+        self.bounding_box = self.bounding_box.get_merge(object_bounding_box);
     }
 }
 

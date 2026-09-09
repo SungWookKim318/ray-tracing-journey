@@ -1,4 +1,6 @@
 use std::cmp::Ordering;
+use std::println;
+use std::ptr::null;
 use std::rc::Rc;
 
 use rand::RngExt;
@@ -19,8 +21,23 @@ impl BvhNode {
         let len = list.objects.len();
         Self::generate_leafs(&mut list.objects, 0, len)
     }
-
+    fn new_empty_node() -> Self {
+        Self {
+            left: Option::None,
+            right: Option::None,
+            bounding_box: Aabb::zero(),
+        }
+    }
     fn generate_leafs(objects: &mut Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> Self {
+        let object_span = end - start;
+        if object_span == 0 {
+            eprintln!(
+                "object_span is zero will be empty tree, start: {}, end: {}",
+                start, end
+            );
+            return BvhNode::new_empty_node();
+        }
+
         let mut rng = rand::rng();
         let axis_index = rng.random_range(0..=2usize);
         let comparator = if axis_index == 0 {
@@ -30,10 +47,10 @@ impl BvhNode {
         } else {
             BvhNode::box_z_compare
         };
-        let object_span = end - start;
 
         let left: Rc<dyn Hittable>;
         let right: Rc<dyn Hittable>;
+
         if object_span == 1 {
             left = objects[start].clone();
             right = objects[start].clone();

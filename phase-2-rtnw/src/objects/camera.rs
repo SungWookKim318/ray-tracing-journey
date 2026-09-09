@@ -87,6 +87,10 @@ impl Camera {
         assert!(self.sample_per_pixel > 0, "Simple per pixel is under Zero.");
         assert!(self.max_depth > 0, "max_depth is under Zero.");
         assert!(self.vertical_fov > 0.0, "Vertical FOV is under Zero.");
+        assert!(
+            self.center == self.look_at,
+            "Look point and Center should be different"
+        );
 
         self.pixel_sample_scale = 1.0 / self.sample_per_pixel as f32;
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
@@ -103,6 +107,8 @@ impl Camera {
         let viewport_width = viewport_height * (self.image_width as f32 / self.image_height as f32);
 
         self.basis_w = (self.center - self.look_at).normalize();
+        // Important: Up Direction Vector and Direction of Camera should be different y-axis(up direction)
+        // if same it is not possible to get direction of basises of the camera.
         self.basis_u = self.up_direction.cross(self.basis_w).normalize();
         self.basis_v = self.basis_w.cross(self.basis_u);
 

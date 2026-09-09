@@ -19,6 +19,10 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(static_center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
+        if radius > 0.0 {
+            panic!("radius should be over 0.");
+        }
+
         let radius_vector = Vec3::with_scalar(radius);
         Self {
             center: Ray::new(static_center, Vec3::zero(), 0.0),
@@ -54,19 +58,6 @@ impl Sphere {
             bounding_box: Aabb::merge_new(box_at_zero, box_at_final),
         }
     }
-
-    pub fn zero() -> Self {
-        Self {
-            center: Ray::zero(),
-            radius: 0.0,
-            material: Rc::new(NoneMaterial::new()),
-            bounding_box: Aabb {
-                x_interval: Interval::new(0.0, 0.0),
-                y_interval: Interval::new(0.0, 0.0),
-                z_interval: Interval::new(0.0, 0.0),
-            },
-        }
-    }
 }
 
 impl Hittable for Sphere {
@@ -74,6 +65,10 @@ impl Hittable for Sphere {
         let current_center = self.center.at(ray.time());
         let origin_center = current_center - ray.origin();
         let a = ray.direction().length_squared();
+        if a == 0.0 {
+            return false;
+        }
+
         let h = ray.direction().dot(origin_center);
         let c = origin_center.length_squared() - self.radius * self.radius;
 
