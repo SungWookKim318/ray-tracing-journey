@@ -80,24 +80,29 @@ jobs:
           path: review-rust.md
 
   reviewer-algorithm:
-    name: Codex CLI (알고리즘 관점)
+    name: Claude Code (알고리즘 관점)
     runs-on: [self-hosted, ai_agent]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run Codex CLI review (algorithm perspective)
+      - name: Run Claude Code review (algorithm perspective)
         env:
           BASE: ${{ github.base_ref || 'main' }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           set -euo pipefail
-          codex login status
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+            echo "CLAUDE_CODE_OAUTH_TOKEN secret is not set" >&2
+            exit 1
+          fi
+          claude auth status || true
 
           DIFF=$(git diff "origin/${BASE}...HEAD" -- phase-1-rtiow 2>/dev/null || true)
           if [ -z "$DIFF" ]; then
             echo "No diff available (likely workflow_dispatch from a non-PR context). Writing empty review."
-            printf '# Codex CLI review - Phase 1 (algorithm perspective)\n\n(diff was empty or unavailable; nothing to review)\n' > review-algorithm.md
+            printf '# Claude Code review - Phase 1 (algorithm perspective)\n\n(diff was empty or unavailable; nothing to review)\n' > review-algorithm.md
             exit 0
           fi
 
@@ -128,10 +133,8 @@ jobs:
           $DIFF
           \`\`\`"
 
-          codex --ask-for-approval never exec --model gpt-5.6-terra \
-            -c 'model_reasoning_effort="medium"' \
-            --sandbox read-only \
-            "$PROMPT" | tee review-algorithm.md
+          claude -p "$PROMPT" --output-format text \
+            --model claude-sonnet-5 --effort medium --tools "" | tee review-algorithm.md
 
       - uses: actions/upload-artifact@v4
         with:
@@ -139,7 +142,7 @@ jobs:
           path: review-algorithm.md
 
   synthesizer:
-    name: Codex CLI Synthesizer
+    name: Claude Code Synthesizer
     needs: [reviewer-rust, reviewer-algorithm]
     runs-on: [self-hosted, ai_agent]
     steps:
@@ -153,10 +156,16 @@ jobs:
           name: review-algorithm
           path: ./artifacts/review-algorithm
 
-      - name: Run Codex CLI synthesizer
+      - name: Run Claude Code synthesizer
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           set -euo pipefail
-          codex login status
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+            echo "CLAUDE_CODE_OAUTH_TOKEN secret is not set" >&2
+            exit 1
+          fi
+          claude auth status || true
 
           REVIEW_RUST=$(cat ./artifacts/review-rust/review-rust.md)
           REVIEW_ALGORITHM=$(cat ./artifacts/review-algorithm/review-algorithm.md)
@@ -173,7 +182,7 @@ jobs:
 
           ## Single-reviewer observations
           한 리뷰어만 지적한 항목. 원본을 그대로 인용하고
-          [Claude only] 또는 [Codex only] 태그를 붙입니다.
+          [Rust reviewer only] 또는 [Algorithm reviewer only] 태그를 붙입니다.
           학습자 판단이 필요한 회색 지대임을 명시합니다.
 
           ## Conflicts (learner decision required)
@@ -197,13 +206,11 @@ jobs:
           --- review-rust.md (Claude Code, Rust 관점) ---
           $REVIEW_RUST
 
-          --- review-algorithm.md (Codex CLI, 알고리즘 관점) ---
+          --- review-algorithm.md (Claude Code, 알고리즘 관점) ---
           $REVIEW_ALGORITHM"
 
-          codex --ask-for-approval never exec --model gpt-5.6-terra \
-            -c 'model_reasoning_effort="medium"' \
-            --sandbox read-only \
-            "$PROMPT" | tee synthesized.md
+          claude -p "$PROMPT" --output-format text \
+            --model claude-sonnet-5 --effort medium --tools "" | tee synthesized.md
 
       - name: Post synthesized review to PR
         if: github.event_name == 'pull_request'
