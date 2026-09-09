@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "phase-1-rtiow/Cargo.toml",
+    "phase-2-rtnw/Cargo.toml"
+  ]
+}
