@@ -17,7 +17,7 @@ pub enum PixelType {
 }
 
 impl ImageTexture {
-    pub fn loadFile(path: String, pixel_type: PixelType) -> Option<Self> {
+    pub fn load_file(path: String, pixel_type: PixelType) -> Option<Self> {
         let image = match image::open(path) {
             Ok(data) => data,
             Err(error) => {
