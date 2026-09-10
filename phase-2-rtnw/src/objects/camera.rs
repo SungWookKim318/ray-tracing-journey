@@ -88,7 +88,7 @@ impl Camera {
         assert!(self.max_depth > 0, "max_depth is under Zero.");
         assert!(self.vertical_fov > 0.0, "Vertical FOV is under Zero.");
         assert!(
-            self.center == self.look_at,
+            self.center != self.look_at,
             "Look point and Center should be different"
         );
 

@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::{
     objects::{
         hittable::{HitRecord, Hittable},
-        materials::material::{Material, NoneMaterial},
+        materials::material::Material,
     },
     ray::Ray,
     utils::{aabb::Aabb, interval::Interval},
@@ -19,7 +19,7 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(static_center: Point3, radius: f32, material: Rc<dyn Material>) -> Self {
-        if radius > 0.0 {
+        if radius <= 0.0 {
             panic!("radius should be over 0.");
         }
 

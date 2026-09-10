@@ -1,9 +1,5 @@
 use std::cmp::Ordering;
-use std::println;
-use std::ptr::null;
 use std::rc::Rc;
-
-use rand::RngExt;
 
 use super::hittable::Hittable;
 use crate::objects::hittable_list::HittableList;
@@ -19,15 +15,20 @@ pub struct BvhNode {
 impl BvhNode {
     pub fn new_root(list: &mut HittableList) -> Self {
         let len = list.objects.len();
+        if len == 0 {
+            return Self::new_empty_node();
+        }
         Self::generate_leafs(&mut list.objects, 0, len)
     }
+
     fn new_empty_node() -> Self {
         Self {
             left: Option::None,
             right: Option::None,
-            bounding_box: Aabb::zero(),
+            bounding_box: Aabb::empty(),
         }
     }
+
     fn generate_leafs(objects: &mut Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> Self {
         let object_span = end - start;
         if object_span == 0 {
@@ -38,8 +39,14 @@ impl BvhNode {
             return BvhNode::new_empty_node();
         }
 
-        let mut rng = rand::rng();
-        let axis_index = rng.random_range(0..=2usize);
+        // let mut rng = rand::rng();
+        // let axis_index = rng.random_range(0..=2usize);
+        let mut new_bounding_box = Aabb::empty();
+        for object in objects[start..end].iter() {
+            new_bounding_box.extend(object.bounding_box());
+        }
+        let axis_index = new_bounding_box.longest_axis();
+
         let comparator = if axis_index == 0 {
             BvhNode::box_x_compare
         } else if axis_index == 1 {
@@ -67,7 +74,7 @@ impl BvhNode {
         Self {
             left: Option::Some(left.clone()),
             right: Option::Some(right.clone()),
-            bounding_box: Aabb::merge_new(left.bounding_box(), right.bounding_box()),
+            bounding_box: new_bounding_box,
         }
     }
 

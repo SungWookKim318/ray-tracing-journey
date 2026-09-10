@@ -95,7 +95,13 @@ fn main() {
         Rc::clone(&right_material),
     )));
 
+    eprintln!("Create BVH");
+    let bvh_start_time = std::time::Instant::now();
     let bvh_world = BvhNode::new_root(&mut world);
+    eprintln!(
+        "Finished BVH, Start Generate Rays. {:.2?}",
+        bvh_start_time.elapsed()
+    );
 
     let mut camera = Camera::zero();
     camera.aspect_ratio = 16.0 / 9.0f32;
@@ -111,6 +117,14 @@ fn main() {
     camera.defocus_angle = 0.6;
     camera.focus_dist = 10.0;
 
+    // let ray_generate_time = std::time::Instant::now();
+    // camera.render(&world);
+    // eprintln!(
+    //     "End RT without Optimization. {:.2?}",
+    //     ray_generate_time.elapsed()
+    // );
+
+    let ray_generate_time = std::time::Instant::now();
     camera.render(&bvh_world);
-    eprintln!("End RT");
+    eprintln!("End RT with BVH. {:.2?}", ray_generate_time.elapsed());
 }

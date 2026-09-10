@@ -18,11 +18,19 @@ impl Aabb {
         }
     }
 
-    pub const fn zero() -> Self {
+    pub const fn empty() -> Self {
         Self {
             x_interval: Interval::empty(),
             y_interval: Interval::empty(),
             z_interval: Interval::empty(),
+        }
+    }
+
+    pub const fn universe() -> Self {
+        Self {
+            x_interval: Interval::universe(),
+            y_interval: Interval::universe(),
+            z_interval: Interval::universe(),
         }
     }
 
@@ -109,6 +117,25 @@ impl Aabb {
             }
         }
         true
+    }
+
+    pub fn longest_axis(&self) -> usize {
+        // x > y
+        if self.x_interval.size() > self.y_interval.size() {
+            // x is bigger, z unknown
+            if self.x_interval.size() > self.z_interval.size() {
+                0 // return x index
+            } else {
+                2 // return z index
+            }
+        } else {
+            // y is bigger, z unknown
+            if self.y_interval.size() > self.z_interval.size() {
+                1 // return y index
+            } else {
+                2 // return z index
+            }
+        }
     }
 
     #[must_use]
