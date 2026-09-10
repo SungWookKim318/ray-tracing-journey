@@ -12,6 +12,7 @@ use crate::objects::{
     hittable_list,
     materials::{dielectric::Dielectric, lambertian::Lambertian, material::Material, metal::Metal},
     sphere::Sphere,
+    texture::{checker_texture::CheckerTexture, texture::Texture},
 };
 
 use color::Color;
@@ -24,7 +25,12 @@ fn main() {
     let mut rng = rand::rng();
     // World
     let mut world = hittable_list::HittableList::new();
-    let ground_material: Rc<dyn Material> = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let ground_texture: Rc<dyn Texture> = Rc::new(CheckerTexture::new_with_color(
+        0.32,
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
+    ));
+    let ground_material: Rc<dyn Material> = Rc::new(Lambertian::new_with_texture(ground_texture));
     world.add(Rc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
