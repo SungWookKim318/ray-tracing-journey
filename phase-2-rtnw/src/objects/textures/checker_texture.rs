@@ -1,4 +1,4 @@
-use crate::{color::Color, objects::texture::solid_texture::SolidTexture};
+use crate::{color::Color, objects::textures::solid_texture::SolidTexture};
 
 use super::texture::Texture;
 use std::rc::Rc;
@@ -10,7 +10,7 @@ pub struct CheckerTexture {
 }
 
 impl CheckerTexture {
-    pub fn new_(scale: f32, even_texture: Rc<dyn Texture>, odd_texture: Rc<dyn Texture>) -> Self {
+    pub fn new(scale: f32, even_texture: Rc<dyn Texture>, odd_texture: Rc<dyn Texture>) -> Self {
         assert!(scale > 0.0, "scale should be bigger than zero.");
         Self {
             cell_per_unit: 1.0 / scale,
@@ -20,7 +20,7 @@ impl CheckerTexture {
     }
 
     pub fn new_with_color(scale: f32, even_color: Color, odd_color: Color) -> Self {
-        Self::new_(
+        Self::new(
             scale,
             Rc::new(SolidTexture::new(even_color)),
             Rc::new(SolidTexture::new(odd_color)),

@@ -5,7 +5,7 @@ use crate::{
     color::Color,
     objects::{
         hittable::HitRecord,
-        texture::{solid_texture::SolidTexture, texture::Texture},
+        textures::{solid_texture::SolidTexture, texture::Texture},
     },
     ray::Ray,
     vec3::Vec3,
