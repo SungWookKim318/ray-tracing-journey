@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{f32::consts::PI, rc::Rc};
 
 use crate::{
     objects::{
@@ -60,6 +60,15 @@ impl Sphere {
     }
 }
 
+impl Sphere {
+    fn calculate_sphere_uv(point: Point3) -> (f32, f32) {
+        let theta: f32 = (-point.y).acos();
+        let phi = (-point.z).atan2(point.x) + PI;
+        const TWO_PI: f32 = 2.0 * PI;
+        (phi / TWO_PI, theta / PI)
+    }
+}
+
 impl Hittable for Sphere {
     fn hit(&self, ray: Ray, ray_t: Interval, record: &mut HitRecord) -> bool {
         let current_center = self.center.at(ray.time());
@@ -92,6 +101,7 @@ impl Hittable for Sphere {
         record.normal = (record.point - current_center) / self.radius;
         let outward_normal = record.normal;
         record.set_face_normal(&ray, &outward_normal);
+        (record.u, record.v) = Self::calculate_sphere_uv(outward_normal);
         record.material = Rc::clone(&self.material);
         true
     }
