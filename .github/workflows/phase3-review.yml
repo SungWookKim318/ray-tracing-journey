@@ -1,11 +1,7 @@
 name: Phase 3 Dual-Agent Review
 
+# ponytail: auto-review disabled while CI runs under the company Claude account; re-add pull_request trigger to resume
 on:
-  pull_request:
-    paths:
-      - 'phase-3-dxr/**'
-      - '!phase-3-dxr/AGENTS.md'
-      - '!phase-3-dxr/CLAUDE.md'
   workflow_dispatch:
 
 concurrency:
