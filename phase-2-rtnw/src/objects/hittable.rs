@@ -11,6 +11,8 @@ pub struct HitRecord {
     pub point: Point3,
     pub normal: Vec3,
     pub t: f32,
+    pub u: f32,
+    pub v: f32,
     pub is_front_face: bool,
     pub material: Rc<dyn Material>,
 }
@@ -21,6 +23,8 @@ impl HitRecord {
             point: Vec3::zero(),
             normal: Vec3::zero(),
             t: 0.0,
+            u: 0.0,
+            v: 0.0,
             is_front_face: false,
             material: Rc::new(NoneMaterial::new()),
         }

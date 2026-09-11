@@ -13,7 +13,7 @@ impl HittableList {
     pub const fn new() -> Self {
         Self {
             objects: Vec::new(),
-            bounding_box: Aabb::zero(),
+            bounding_box: Aabb::empty(),
         }
     }
 
