@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::scenes::{
     bouncing_spheres::bouncing_spheres, bouncing_spheres_with_bvh::bouncing_spheres_with_bvh,
-    checkered_spheres::checkered_spheres, earth::earth_globe,
+    checkered_spheres::checkered_spheres, earth::earth_globe, perlin_spheres::perlin_spheres,
 };
 use core::panic;
 use std::{
@@ -22,6 +22,7 @@ enum SceneTypes {
     BvhOptimization,
     TwoCheckered,
     EarthGlobe,
+    PerlinSpheres,
 }
 
 fn main() {
@@ -31,7 +32,8 @@ fn main() {
     eprintln!("2) bouncing_spheres_with_bvh");
     eprintln!("3) checkered_spheres");
     eprintln!("4) earth");
-    eprintln!("*IMPORTANT* Current Default is 3.");
+    eprintln!("5) perlin_spheres");
+    eprintln!("*IMPORTANT* Current Default is 5.");
     if io::stdout().flush().is_err() {
         panic!("std out stream is fail to flush.");
     }
@@ -53,7 +55,8 @@ fn main() {
         2 => SceneTypes::BvhOptimization,
         3 => SceneTypes::TwoCheckered,
         4 => SceneTypes::EarthGlobe,
-        _ => SceneTypes::EarthGlobe,
+        5 => SceneTypes::PerlinSpheres,
+        _ => SceneTypes::PerlinSpheres,
     };
 
     match scene_type {
@@ -61,5 +64,6 @@ fn main() {
         SceneTypes::BvhOptimization => bouncing_spheres_with_bvh(),
         SceneTypes::TwoCheckered => checkered_spheres(),
         SceneTypes::EarthGlobe => earth_globe(),
+        SceneTypes::PerlinSpheres => perlin_spheres(),
     };
 }
