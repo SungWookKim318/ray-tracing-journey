@@ -1,17 +1,18 @@
 use rand::RngExt;
 
-use crate::{utils::noises::noise::Noise, vec3::Point3};
+use crate::vec3::Point3;
+
+use super::noise::Noise;
 
 const POINT_COUNT: usize = 256;
-
-pub struct Perlin {
+pub struct TrilinearPerlin {
     random_floats: [f32; POINT_COUNT],
     perm_x: [usize; POINT_COUNT],
     perm_y: [usize; POINT_COUNT],
     perm_z: [usize; POINT_COUNT],
 }
 
-impl Noise for Perlin {
+impl Noise for TrilinearPerlin {
     fn noise(&self, position: Point3) -> f32 {
         const MAX_INDEX: i32 = POINT_COUNT as i32 - 1;
         let i = ((4.0 * position.x) as i32 & MAX_INDEX) as usize;
@@ -22,7 +23,7 @@ impl Noise for Perlin {
     }
 }
 
-impl Perlin {
+impl TrilinearPerlin {
     pub const fn point_count() -> usize {
         POINT_COUNT
     }
@@ -49,13 +50,13 @@ impl Perlin {
     }
 }
 
-impl Perlin {
+impl TrilinearPerlin {
     pub fn new(rng: &mut dyn rand::Rng) -> Self {
         Self {
             random_floats: std::array::from_fn(|_| rng.random_range(0.0..1.0)),
-            perm_x: Perlin::create_perlin_perm(rng),
-            perm_y: Perlin::create_perlin_perm(rng),
-            perm_z: Perlin::create_perlin_perm(rng),
+            perm_x: TrilinearPerlin::create_perlin_perm(rng),
+            perm_y: TrilinearPerlin::create_perlin_perm(rng),
+            perm_z: TrilinearPerlin::create_perlin_perm(rng),
         }
     }
 }

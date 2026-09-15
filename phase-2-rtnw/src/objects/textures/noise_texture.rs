@@ -1,21 +1,18 @@
 use crate::{
     color::Color,
-    utils::noises::perlin::Perlin,
+    utils::noises::{noise::Noise, perlin::Perlin},
     vec3::{Point3, Vec3},
 };
 
 use super::texture::Texture;
 
-#[derive(Debug)]
 pub struct NoiseTexture {
-    noise: Perlin,
+    noise: Box<dyn Noise>,
 }
 
 impl NoiseTexture {
-    pub fn new(rng: &mut dyn rand::Rng) -> Self {
-        Self {
-            noise: Perlin::new(rng),
-        }
+    pub fn new(noise: Box<dyn Noise>) -> Self {
+        Self { noise }
     }
 }
 
