@@ -1,6 +1,6 @@
 use crate::{
     color::Color,
-    utils::noises::{noise::Noise, perlin::Perlin},
+    utils::noises::noise::Noise,
     vec3::{Point3, Vec3},
 };
 

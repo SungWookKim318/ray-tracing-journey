@@ -14,12 +14,41 @@ pub struct TrilinearPerlin {
 
 impl Noise for TrilinearPerlin {
     fn noise(&self, position: Point3) -> f32 {
-        const MAX_INDEX: i32 = POINT_COUNT as i32 - 1;
-        let i = ((4.0 * position.x) as i32 & MAX_INDEX) as usize;
-        let j = ((4.0 * position.y) as i32 & MAX_INDEX) as usize;
-        let k = ((4.0 * position.z) as i32 & MAX_INDEX) as usize;
+        let u = position.x - position.x.floor();
+        let v = position.y - position.y.floor();
+        let w = position.z - position.z.floor();
 
-        self.random_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
+        let i = position.x.floor() as isize;
+        let j = position.y.floor() as isize;
+        let k = position.z.floor() as isize;
+
+        let mut trilinear_samples = [0.0f32; 8];
+
+        for (index, sample) in trilinear_samples.iter_mut().enumerate() {
+            let dk = index as isize / 4 as isize;
+            let dj = index as isize / 4 % 2 as isize;
+            let di = index as isize % 2 as isize;
+
+            let rand_index = self.perm_x[((i + di) & 255) as usize]
+                ^ self.perm_y[((j + dj) & 255) as usize]
+                ^ self.perm_z[((k + dk) & 255) as usize];
+            *sample = self.random_floats[rand_index];
+        }
+
+        let new_value = trilinear_samples
+            .iter()
+            .enumerate()
+            .fold(0.0f32, |acc, (index, value)| {
+                let k = (index / 4) as f32;
+                let j = (index / 4 % 2) as f32;
+                let i = (index % 2) as f32;
+                let sample_interpolated = (i * u + (1.0 - i) * (1.0 - u))
+                    * (j * v + (1.0 - j) * (1.0 - v))
+                    * (k * w + (1.0 - k) * (1.0 - w))
+                    * value;
+                acc + sample_interpolated
+            });
+        new_value
     }
 }
 
