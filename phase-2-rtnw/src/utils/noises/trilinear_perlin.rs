@@ -23,12 +23,10 @@ impl Noise for TrilinearPerlin {
         let k = position.z.floor() as isize;
 
         let mut trilinear_samples = [0.0f32; 8];
-
         for (index, sample) in trilinear_samples.iter_mut().enumerate() {
             let dk = index as isize / 4 as isize;
-            let dj = index as isize / 4 % 2 as isize;
+            let dj = index as isize / 2 % 2 as isize;
             let di = index as isize % 2 as isize;
-
             let rand_index = self.perm_x[((i + di) & 255) as usize]
                 ^ self.perm_y[((j + dj) & 255) as usize]
                 ^ self.perm_z[((k + dk) & 255) as usize];
@@ -40,7 +38,7 @@ impl Noise for TrilinearPerlin {
             .enumerate()
             .fold(0.0f32, |acc, (index, value)| {
                 let k = (index / 4) as f32;
-                let j = (index / 4 % 2) as f32;
+                let j = (index / 2 % 2) as f32;
                 let i = (index % 2) as f32;
                 let sample_interpolated = (i * u + (1.0 - i) * (1.0 - u))
                     * (j * v + (1.0 - j) * (1.0 - v))
