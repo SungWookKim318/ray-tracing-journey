@@ -8,7 +8,7 @@ use crate::{
         sphere::Sphere,
         textures::noise_texture::NoiseTexture,
     },
-    utils::noises::hermitian_perlin::HermitianPerlin,
+    utils::noises::lattice_perlin::LatticePointsPerlin,
     vec3::{Point3, Vec3},
 };
 
@@ -16,7 +16,10 @@ pub(crate) fn perlin_spheres() {
     eprint!("start perlin_spheres");
     let mut rng = rand::rng();
     let mut world = HittableList::new();
-    let perlin_texture = Rc::new(NoiseTexture::new(Box::new(HermitianPerlin::new(&mut rng))));
+    let perlin_texture = Rc::new(NoiseTexture::new(
+        Box::new(LatticePointsPerlin::new(&mut rng)),
+        4.0,
+    ));
     let surface: Rc<dyn Material> = Rc::new(Lambertian::new_with_texture(perlin_texture));
     let ground = Rc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),

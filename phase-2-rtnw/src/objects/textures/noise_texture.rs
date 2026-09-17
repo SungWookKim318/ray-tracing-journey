@@ -8,16 +8,17 @@ use super::texture::Texture;
 
 pub struct NoiseTexture {
     noise: Box<dyn Noise>,
+    scale: f32,
 }
 
 impl NoiseTexture {
-    pub fn new(noise: Box<dyn Noise>) -> Self {
-        Self { noise }
+    pub fn new(noise: Box<dyn Noise>, scale: f32) -> Self {
+        Self { noise, scale }
     }
 }
 
 impl Texture for NoiseTexture {
     fn value(&self, _: f32, _: f32, point: &Point3) -> Vec3 {
-        Color::with_scalar(1.0) * self.noise.noise(*point)
+        Color::with_scalar(1.0) * self.noise.noise(*point * self.scale)
     }
 }
