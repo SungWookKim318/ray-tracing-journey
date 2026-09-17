@@ -13,18 +13,19 @@ pub struct HermitianPerlin {
 }
 
 impl Noise for HermitianPerlin {
-    fn noise(&self, position: Point3) -> f32 {
-        let u = position.x - position.x.floor();
-        let v = position.y - position.y.floor();
-        let w = position.z - position.z.floor();
+    fn noise(&self, position: Point3, scale: f32) -> f32 {
+        let scaled_position = position * scale;
+        let u = scaled_position.x - scaled_position.x.floor();
+        let v = scaled_position.y - scaled_position.y.floor();
+        let w = scaled_position.z - scaled_position.z.floor();
 
         let u = u * u * (3.0 - 2.0 * u);
         let v = v * v * (3.0 - 2.0 * v);
         let w = w * w * (3.0 - 2.0 * w);
 
-        let i = position.x.floor() as isize;
-        let j = position.y.floor() as isize;
-        let k = position.z.floor() as isize;
+        let i = scaled_position.x.floor() as isize;
+        let j = scaled_position.y.floor() as isize;
+        let k = scaled_position.z.floor() as isize;
 
         let mut trilinear_samples = [0.0f32; 8];
         for (index, sample) in trilinear_samples.iter_mut().enumerate() {

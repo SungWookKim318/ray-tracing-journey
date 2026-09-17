@@ -12,11 +12,12 @@ pub struct Perlin {
 }
 
 impl Noise for Perlin {
-    fn noise(&self, position: Point3) -> f32 {
+    fn noise(&self, position: Point3, scale: f32) -> f32 {
+        let scaled_position = position * scale;
         const MAX_INDEX: i32 = POINT_COUNT as i32 - 1;
-        let i = ((4.0 * position.x) as i32 & MAX_INDEX) as usize;
-        let j = ((4.0 * position.y) as i32 & MAX_INDEX) as usize;
-        let k = ((4.0 * position.z) as i32 & MAX_INDEX) as usize;
+        let i = ((4.0 * scaled_position.x) as i32 & MAX_INDEX) as usize;
+        let j = ((4.0 * scaled_position.y) as i32 & MAX_INDEX) as usize;
+        let k = ((4.0 * scaled_position.z) as i32 & MAX_INDEX) as usize;
 
         self.random_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
     }

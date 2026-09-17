@@ -13,14 +13,15 @@ pub struct LatticePointsPerlin {
 }
 
 impl Noise for LatticePointsPerlin {
-    fn noise(&self, position: Point3) -> f32 {
-        let u = position.x - position.x.floor();
-        let v = position.y - position.y.floor();
-        let w = position.z - position.z.floor();
+    fn noise(&self, position: Point3, scale: f32) -> f32 {
+        let scaled_position = position * scale;
+        let u = scaled_position.x - scaled_position.x.floor();
+        let v = scaled_position.y - scaled_position.y.floor();
+        let w = scaled_position.z - scaled_position.z.floor();
 
-        let i = position.x.floor() as isize;
-        let j = position.y.floor() as isize;
-        let k = position.z.floor() as isize;
+        let i = scaled_position.x.floor() as isize;
+        let j = scaled_position.y.floor() as isize;
+        let k = scaled_position.z.floor() as isize;
 
         let vector_samples: [Vec3; 8] = std::array::from_fn(|index| {
             let dk = index as isize / 4 as isize;
