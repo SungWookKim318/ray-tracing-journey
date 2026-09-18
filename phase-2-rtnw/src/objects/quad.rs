@@ -1,0 +1,42 @@
+use std::rc::Rc;
+
+use crate::{
+    objects::{
+        hittable::{HitRecord, Hittable},
+        materials::material::Material,
+    },
+    ray::Ray,
+    utils::{aabb::Aabb, interval::Interval},
+    vec3::{Point3, Vec3},
+};
+
+struct Quad {
+    origin: Point3,
+    u: Vec3,
+    v: Vec3,
+    material: Rc<dyn Material>,
+    bounding_box: Aabb,
+}
+
+impl Hittable for Quad {
+    fn hit(&self, ray: Ray, ray_t: Interval, hit_record: &mut HitRecord) -> bool {
+        false
+    }
+
+    fn bounding_box(&self) -> Aabb {
+        self.bounding_box
+    }
+}
+
+impl Quad {
+    fn new(origin: Point3, u: Vec3, v: Vec3, material: Rc<dyn Material>) -> Self {}
+}
+
+impl Quad {
+    fn update_bounding_box(&mut self) {
+        let diagonal_box_1 = Aabb::new_by_gap(self.origin, self.origin + self.u + self.v);
+        let diagonal_box_2 = Aabb::new_by_gap(self.origin + self.u, self.origin + self.v);
+
+        self.bounding_box = Aabb::merge_new(diagonal_box_1, diagonal_box_2);
+    }
+}

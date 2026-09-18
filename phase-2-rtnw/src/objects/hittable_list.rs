@@ -10,7 +10,7 @@ pub struct HittableList {
 }
 
 impl HittableList {
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             objects: Vec::new(),
             bounding_box: Aabb::empty(),

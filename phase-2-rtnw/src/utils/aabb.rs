@@ -9,20 +9,34 @@ pub struct Aabb {
     pub z_interval: Interval,
 }
 
+const DELTA_INTERVAL: f32 = 0.001;
+
 impl Aabb {
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        Self {
+        let new_boundary = Self {
             x_interval: x,
             y_interval: y,
             z_interval: z,
+        };
+
+        if new_boundary.x_interval.size() < DELTA_INTERVAL {
+            new_boundary.x_interval.expand(DELTA_INTERVAL);
         }
+        if new_boundary.y_interval.size() < DELTA_INTERVAL {
+            new_boundary.y_interval.expand(DELTA_INTERVAL);
+        }
+        if new_boundary.z_interval.size() < DELTA_INTERVAL {
+            new_boundary.z_interval.expand(DELTA_INTERVAL);
+        }
+
+        new_boundary
     }
 
-    pub const fn empty() -> Self {
+    pub fn empty() -> Self {
         Self {
-            x_interval: Interval::empty(),
-            y_interval: Interval::empty(),
-            z_interval: Interval::empty(),
+            x_interval: Interval::empty().expand(DELTA_INTERVAL),
+            y_interval: Interval::empty().expand(DELTA_INTERVAL),
+            z_interval: Interval::empty().expand(DELTA_INTERVAL),
         }
     }
 
