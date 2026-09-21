@@ -16,10 +16,29 @@ struct Quad {
     v: Vec3,
     material: Rc<dyn Material>,
     bounding_box: Aabb,
+    normal: Vec3,
+    d: f32,
 }
 
 impl Hittable for Quad {
     fn hit(&self, ray: Ray, ray_t: Interval, hit_record: &mut HitRecord) -> bool {
+        let denom: f32 = self.normal.dot(ray.direction());
+        if denom.abs() < 0.0001 {
+            return false;
+        }
+
+        let t = (self.d - self.normal.dot(ray.origin())) / denom;
+        if !ray_t.contain(t) {
+            return false;
+        }
+
+        let intersection = ray.at(t);
+
+        hit_record.t = t;
+        hit_record.point = intersection;
+        hit_record.material = self.material.clone();
+        hit_record.set_face_normal(&ray, &self.normal);
+
         false
     }
 
@@ -30,12 +49,18 @@ impl Hittable for Quad {
 
 impl Quad {
     fn new(origin: Point3, u: Vec3, v: Vec3, material: Rc<dyn Material>) -> Self {
+        let bounding_box = Self::get_new_bounding_box(origin, u, v);
+        let normal = u.cross(v).normalize();
+        let d = normal.dot(origin);
+
         Self {
             origin,
             u,
             v,
             material,
-            bounding_box: Self::get_new_bounding_box(origin, u, v),
+            bounding_box,
+            normal,
+            d,
         }
     }
 }
