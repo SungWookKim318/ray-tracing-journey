@@ -29,7 +29,15 @@ impl Hittable for Quad {
 }
 
 impl Quad {
-    fn new(origin: Point3, u: Vec3, v: Vec3, material: Rc<dyn Material>) -> Self {}
+    fn new(origin: Point3, u: Vec3, v: Vec3, material: Rc<dyn Material>) -> Self {
+        Self {
+            origin,
+            u,
+            v,
+            material,
+            bounding_box: Self::get_new_bounding_box(origin, u, v),
+        }
+    }
 }
 
 impl Quad {
@@ -38,5 +46,12 @@ impl Quad {
         let diagonal_box_2 = Aabb::new_by_gap(self.origin + self.u, self.origin + self.v);
 
         self.bounding_box = Aabb::merge_new(diagonal_box_1, diagonal_box_2);
+    }
+
+    fn get_new_bounding_box(origin: Point3, u: Vec3, v: Vec3) -> Aabb {
+        let diagonal_box_1 = Aabb::new_by_gap(origin, origin + u + v);
+        let diagonal_box_2 = Aabb::new_by_gap(origin + u, origin + v);
+
+        Aabb::merge_new(diagonal_box_1, diagonal_box_2)
     }
 }
