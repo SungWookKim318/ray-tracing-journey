@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 use crate::scenes::{
-    bouncing_spheres::bouncing_spheres, bouncing_spheres_with_bvh::bouncing_spheres_with_bvh,
-    checkered_spheres::checkered_spheres, earth::earth_globe, perlin_spheres::perlin_spheres,
+    basic_quads::basic_quads, bouncing_spheres::bouncing_spheres,
+    bouncing_spheres_with_bvh::bouncing_spheres_with_bvh, checkered_spheres::checkered_spheres,
+    earth::earth_globe, perlin_spheres::perlin_spheres,
 };
 use core::panic;
 use std::{
@@ -23,17 +24,19 @@ enum SceneTypes {
     TwoCheckered,
     EarthGlobe,
     PerlinSpheres,
+    BasicQuads,
 }
 
 fn main() {
     let mut input = String::new();
     eprintln!("Select Rendering Scenes.");
-    eprintln!("1) bouncing_spheres");
-    eprintln!("2) bouncing_spheres_with_bvh");
-    eprintln!("3) checkered_spheres");
-    eprintln!("4) earth");
-    eprintln!("5) perlin_spheres");
-    eprintln!("*IMPORTANT* Current Default is 5.");
+    eprintln!("1) basic_quads");
+    eprintln!("2) bouncing_spheres");
+    eprintln!("3) bouncing_spheres_with_bvh");
+    eprintln!("4) checkered_spheres");
+    eprintln!("5) earth");
+    eprintln!("6) perlin_spheres");
+    eprintln!("*IMPORTANT* Current Default is 1.");
     if io::stdout().flush().is_err() {
         panic!("std out stream is fail to flush.");
     }
@@ -51,12 +54,14 @@ fn main() {
     };
 
     let scene_type: SceneTypes = match input_trim {
-        1 => SceneTypes::BouncingSpheres,
-        2 => SceneTypes::BvhOptimization,
-        3 => SceneTypes::TwoCheckered,
-        4 => SceneTypes::EarthGlobe,
-        5 => SceneTypes::PerlinSpheres,
-        _ => SceneTypes::PerlinSpheres,
+        1 => SceneTypes::BasicQuads,
+        2 => SceneTypes::BouncingSpheres,
+        3 => SceneTypes::BvhOptimization,
+        4 => SceneTypes::TwoCheckered,
+        5 => SceneTypes::EarthGlobe,
+        6 => SceneTypes::PerlinSpheres,
+
+        _ => SceneTypes::BasicQuads,
     };
 
     match scene_type {
@@ -65,5 +70,6 @@ fn main() {
         SceneTypes::TwoCheckered => checkered_spheres(),
         SceneTypes::EarthGlobe => earth_globe(),
         SceneTypes::PerlinSpheres => perlin_spheres(),
+        SceneTypes::BasicQuads => basic_quads(),
     };
 }
