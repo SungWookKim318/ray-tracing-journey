@@ -24,9 +24,9 @@ impl Noise for LatticePointsPerlin {
         let k = scaled_position.z.floor() as isize;
 
         let vector_samples: [Vec3; 8] = std::array::from_fn(|index| {
-            let dk = index as isize / 4 as isize;
-            let dj = index as isize / 2 % 2 as isize;
-            let di = index as isize % 2 as isize;
+            let dk = index as isize / 4;
+            let dj = index as isize / 2 % 2;
+            let di = index as isize % 2;
             let rand_index = self.perm_x[((i + di) & 255) as usize]
                 ^ self.perm_y[((j + dj) & 255) as usize]
                 ^ self.perm_z[((k + dk) & 255) as usize];

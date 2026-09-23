@@ -25,16 +25,16 @@ impl Noise for TrilinearPerlin {
 
         let mut trilinear_samples = [0.0f32; 8];
         for (index, sample) in trilinear_samples.iter_mut().enumerate() {
-            let dk = index as isize / 4 as isize;
-            let dj = index as isize / 2 % 2 as isize;
-            let di = index as isize % 2 as isize;
+            let dk = index as isize / 4;
+            let dj = index as isize / 2 % 2;
+            let di = index as isize % 2;
             let rand_index = self.perm_x[((i + di) & 255) as usize]
                 ^ self.perm_y[((j + dj) & 255) as usize]
                 ^ self.perm_z[((k + dk) & 255) as usize];
             *sample = self.random_floats[rand_index];
         }
 
-        let new_value = trilinear_samples
+        trilinear_samples
             .iter()
             .enumerate()
             .fold(0.0f32, |acc, (index, value)| {
@@ -46,8 +46,7 @@ impl Noise for TrilinearPerlin {
                     * (k * w + (1.0 - k) * (1.0 - w))
                     * value;
                 acc + sample_interpolated
-            });
-        new_value
+            })
     }
 }
 

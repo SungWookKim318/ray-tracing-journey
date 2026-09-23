@@ -47,9 +47,9 @@ impl TurbulencePerlin {
         let k = position.z.floor() as isize;
 
         let vector_samples: [Vec3; 8] = std::array::from_fn(|index| {
-            let dk = index as isize / 4 as isize;
-            let dj = index as isize / 2 % 2 as isize;
-            let di = index as isize % 2 as isize;
+            let dk = index as isize / 4;
+            let dj = index as isize / 2 % 2;
+            let di = index as isize % 2;
             let rand_index = self.perm_x[((i + di) & 255) as usize]
                 ^ self.perm_y[((j + dj) & 255) as usize]
                 ^ self.perm_z[((k + dk) & 255) as usize];
@@ -59,7 +59,7 @@ impl TurbulencePerlin {
         let uu = u * u * (3.0 - 2.0 * u);
         let vv = v * v * (3.0 - 2.0 * v);
         let ww = w * w * (3.0 - 2.0 * w);
-        let noise_value = vector_samples
+        vector_samples
             .iter()
             .enumerate()
             .fold(0.0f32, |acc, (index, value)| {
@@ -73,8 +73,7 @@ impl TurbulencePerlin {
                     * (k * ww + (1.0 - k) * (1.0 - ww))
                     * value.dot(weight_vector);
                 acc + sample_interpolated
-            });
-        noise_value
+            })
     }
 
     fn create_perlin_perm(rng: &mut dyn rand::Rng) -> [usize; POINT_COUNT] {
