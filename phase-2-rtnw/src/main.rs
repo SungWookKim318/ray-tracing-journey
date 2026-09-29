@@ -2,7 +2,7 @@
 use crate::scenes::{
     basic_quads::basic_quads, bouncing_spheres::bouncing_spheres,
     bouncing_spheres_with_bvh::bouncing_spheres_with_bvh, checkered_spheres::checkered_spheres,
-    earth::earth_globe, perlin_spheres::perlin_spheres,
+    earth::earth_globe, perlin_spheres::perlin_spheres, simple_light::simple_light,
 };
 use core::panic;
 use std::{
@@ -25,6 +25,7 @@ enum SceneTypes {
     EarthGlobe,
     PerlinSpheres,
     BasicQuads,
+    SimpleLight,
 }
 
 fn main() {
@@ -36,6 +37,7 @@ fn main() {
     eprintln!("4) checkered_spheres");
     eprintln!("5) earth");
     eprintln!("6) perlin_spheres");
+    eprintln!("7) simple_light");
     eprintln!("*IMPORTANT* Current Default is 1.");
     if io::stdout().flush().is_err() {
         panic!("std out stream is fail to flush.");
@@ -60,6 +62,7 @@ fn main() {
         4 => SceneTypes::TwoCheckered,
         5 => SceneTypes::EarthGlobe,
         6 => SceneTypes::PerlinSpheres,
+        7 => SceneTypes::SimpleLight,
 
         _ => SceneTypes::BasicQuads,
     };
@@ -71,5 +74,6 @@ fn main() {
         SceneTypes::EarthGlobe => earth_globe(),
         SceneTypes::PerlinSpheres => perlin_spheres(),
         SceneTypes::BasicQuads => basic_quads(),
+        SceneTypes::SimpleLight => simple_light(),
     };
 }
