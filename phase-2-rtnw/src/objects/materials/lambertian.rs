@@ -8,7 +8,7 @@ use crate::{
         textures::{solid_texture::SolidTexture, texture::Texture},
     },
     ray::Ray,
-    vec3::Vec3,
+    vec3::{Point3, Vec3},
 };
 
 pub struct Lambertian {
@@ -43,5 +43,9 @@ impl Material for Lambertian {
         *scattered = Ray::new(record.point, scatter_direction, ray.time());
         *attenuation = self.texture.value(record.u, record.v, &record.point);
         true
+    }
+
+    fn emitted(&self, _: f32, _: f32, _: &Point3) -> Color {
+        Color::zero()
     }
 }

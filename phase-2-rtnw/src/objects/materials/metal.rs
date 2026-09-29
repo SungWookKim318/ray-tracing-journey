@@ -1,5 +1,9 @@
 use super::material::Material;
-use crate::{color::Color, ray::Ray, vec3::Vec3};
+use crate::{
+    color::Color,
+    ray::Ray,
+    vec3::{Point3, Vec3},
+};
 
 pub struct Metal {
     albedo: Color,
@@ -30,5 +34,9 @@ impl Material for Metal {
         *attenuation = self.albedo;
 
         scattered.direction().dot(record.normal) > 0.0
+    }
+
+    fn emitted(&self, _: f32, _: f32, _: &Point3) -> Color {
+        Color::zero()
     }
 }

@@ -1,4 +1,4 @@
-use crate::{color::Color, objects::hittable::HitRecord, ray::Ray};
+use crate::{color::Color, objects::hittable::HitRecord, ray::Ray, vec3::Point3};
 
 pub trait Material {
     fn scatter(
@@ -9,6 +9,8 @@ pub trait Material {
         scattered: &mut Ray,
         rng: &mut dyn rand::Rng,
     ) -> bool;
+
+    fn emitted(&self, _: f32, _: f32, _: &Point3) -> Color;
 }
 
 pub struct NoneMaterial {}
@@ -22,6 +24,10 @@ impl Material for NoneMaterial {
         _: &mut dyn rand::Rng,
     ) -> bool {
         false
+    }
+
+    fn emitted(&self, _: f32, _: f32, _: &Point3) -> Color {
+        Color::zero()
     }
 }
 

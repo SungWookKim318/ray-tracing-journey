@@ -1,6 +1,6 @@
 use rand::RngExt;
 
-use crate::{color::Color, ray::Ray};
+use crate::{color::Color, ray::Ray, vec3::Point3};
 
 use super::material::Material;
 
@@ -46,6 +46,10 @@ impl Material for Dielectric {
 
         *scattered = Ray::new(record.point, direction, ray_in.time());
         true
+    }
+
+    fn emitted(&self, _: f32, _: f32, _: &Point3) -> Color {
+        Color::zero()
     }
 }
 
