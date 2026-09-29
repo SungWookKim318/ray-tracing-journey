@@ -20,6 +20,7 @@ pub struct Camera {
     pub up_direction: Vec3,
     pub defocus_angle: f32,
     pub focus_dist: f32,
+    pub background: Color,
 
     image_height: i32,
     pixel_sample_scale: f32,
@@ -45,6 +46,7 @@ impl Camera {
             up_direction: Vec3::new(0.0, 1.0, 0.0),
             defocus_angle: 0.0,
             focus_dist: 10.0,
+            background: Color::zero(),
             image_width: 0,
             image_height: 0,
             pixel_sample_scale: 0.0,
@@ -168,18 +170,21 @@ impl Camera {
         }
 
         let mut record = HitRecord::new();
-        if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
-            let mut scattered_ray = Ray::zero();
-            let mut attenuation = Vec3::zero();
-            let material = record.material.clone();
-            if material.scatter(ray, &mut record, &mut attenuation, &mut scattered_ray, rng) {
-                return attenuation * self.ray_color(scattered_ray, world, depth - 1, rng);
-            }
-            return Color::zero();
+        if !world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
+            return self.background;
         }
-        let unit_direction = ray.direction().normalize();
-        let a = 0.5 * (unit_direction.y + 1.0);
-        (1.0 - a) * Color::with_scalar(1.0) + a * Color::new(0.5, 0.7, 1.0)
+
+        let mut scattered_ray = Ray::zero();
+        let mut attenuation = Vec3::zero();
+        let material = record.material.clone();
+        let color_from_emission = material.emitted(record.u, record.v, &record.point);
+
+        if !material.scatter(ray, &mut record, &mut attenuation, &mut scattered_ray, rng) {
+            return color_from_emission;
+        }
+
+        let color_from_scatter = attenuation * self.ray_color(scattered_ray, world, depth - 1, rng);
+        color_from_emission + color_from_scatter
     }
 
     fn defocus_disk_sample(&self, rng: &mut dyn rand::Rng) -> Point3 {

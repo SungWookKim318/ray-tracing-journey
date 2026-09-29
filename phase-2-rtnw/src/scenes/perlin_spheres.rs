@@ -1,6 +1,7 @@
 use std::{eprint, rc::Rc};
 
 use crate::{
+    color::Color,
     objects::{
         camera::Camera,
         hittable_list::HittableList,
@@ -35,6 +36,7 @@ pub(crate) fn perlin_spheres() {
     world.add(globe);
 
     let mut camera = Camera::zero();
+    camera.background = Color::new(0.7, 0.8, 1.0);
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
     camera.sample_per_pixel = 100;

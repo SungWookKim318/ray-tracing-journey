@@ -58,6 +58,7 @@ pub(crate) fn basic_quads() {
         lower_teal_material,
     )));
     let mut camera = Camera::zero();
+    camera.background = Color::new(0.7, 0.8, 1.0);
     camera.aspect_ratio = 1.0;
     camera.image_width = 400;
     camera.sample_per_pixel = 100;
