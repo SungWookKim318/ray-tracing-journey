@@ -76,3 +76,23 @@ impl Interval {
         }
     }
 }
+
+use std::ops::{Add, AddAssign};
+
+impl Add<f32> for Interval {
+    type Output = Interval;
+    fn add(self, displacement: f32) -> Self::Output {
+        let mut new_interval = self.clone();
+        new_interval.min += displacement;
+        new_interval.max += displacement;
+
+        new_interval
+    }
+}
+
+impl AddAssign<f32> for Interval {
+    fn add_assign(&mut self, displacement: f32) {
+        self.min += displacement;
+        self.max += displacement;
+    }
+}

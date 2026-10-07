@@ -1,4 +1,7 @@
-use crate::{ray::Ray, vec3::Point3};
+use crate::{
+    ray::Ray,
+    vec3::{Point3, Vec3},
+};
 
 use super::interval::Interval;
 
@@ -165,5 +168,28 @@ impl Aabb {
         self.x_interval = Interval::merge(self.x_interval, other.x_interval);
         self.y_interval = Interval::merge(self.y_interval, other.y_interval);
         self.z_interval = Interval::merge(self.z_interval, other.z_interval);
+    }
+}
+
+use std::ops::{Add, AddAssign};
+
+impl Add<Vec3> for Aabb {
+    type Output = Aabb;
+    fn add(self, offset: Vec3) -> Self::Output {
+        let mut new_box = self.clone();
+
+        new_box.x_interval += offset.x;
+        new_box.y_interval += offset.y;
+        new_box.z_interval += offset.z;
+
+        new_box
+    }
+}
+
+impl AddAssign<Vec3> for Aabb {
+    fn add_assign(&mut self, displacement: Vec3) {
+        self.x_interval += displacement.x;
+        self.y_interval += displacement.y;
+        self.z_interval += displacement.z;
     }
 }
