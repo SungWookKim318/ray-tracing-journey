@@ -4,7 +4,7 @@ use super::material::Material;
 use crate::{
     color::Color,
     objects::{
-        hittable::HitRecord,
+        hittabbles::hittable::HitRecord,
         textures::{solid_texture::SolidTexture, texture::Texture},
     },
     ray::Ray,

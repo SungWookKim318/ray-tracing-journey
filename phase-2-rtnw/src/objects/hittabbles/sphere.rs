@@ -2,7 +2,7 @@ use std::{f32::consts::PI, rc::Rc};
 
 use crate::{
     objects::{
-        hittable::{HitRecord, Hittable},
+        hittabbles::hittable::{HitRecord, Hittable},
         materials::material::Material,
     },
     ray::Ray,

@@ -1,18 +1,15 @@
-use std::rc::Rc;
-
 use crate::{
     color::Color,
     objects::{
         camera::Camera,
-        hittable_list::HittableList,
+        hittabbles::{hittable_list::HittableList, quad::Quad, sphere::Sphere},
         materials::{diffuse_light::DiffuseLight, lambertian::Lambertian, material::Material},
-        quad::Quad,
-        sphere::Sphere,
         textures::{noise_texture::NoiseTexture, texture::Texture},
     },
     utils::noises::turbulence_perlin::TurbulencePerlin,
     vec3::{Point3, Vec3},
 };
+use std::rc::Rc;
 
 pub fn simple_light() {
     eprint!("start simple_light");

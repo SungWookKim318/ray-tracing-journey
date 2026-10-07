@@ -4,9 +4,8 @@ use crate::{
     color::Color,
     objects::{
         camera::Camera,
-        hittable_list::HittableList,
+        hittabbles::{hittable_list::HittableList, quad::Quad},
         materials::{lambertian::Lambertian, material::Material},
-        quad::Quad,
     },
     vec3::{Point3, Vec3},
 };

@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::{
     color::Color,
     objects::{
-        hittable::HitRecord,
+        hittabbles::hittable::HitRecord,
         textures::{solid_texture::SolidTexture, texture::Texture},
     },
     ray::Ray,

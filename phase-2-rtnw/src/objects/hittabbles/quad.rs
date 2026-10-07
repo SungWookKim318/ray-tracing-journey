@@ -2,14 +2,13 @@ use std::rc::Rc;
 
 use crate::{
     objects::{
-        hittable::{HitRecord, Hittable},
+        hittabbles::hittable::{HitRecord, Hittable},
         materials::material::Material,
     },
     ray::Ray,
     utils::{aabb::Aabb, interval::Interval},
     vec3::{Point3, Vec3},
 };
-
 pub struct Quad {
     origin: Point3,
     u: Vec3,

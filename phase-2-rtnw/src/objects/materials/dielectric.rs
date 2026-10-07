@@ -18,7 +18,7 @@ impl Material for Dielectric {
     fn scatter(
         &self,
         ray_in: crate::ray::Ray,
-        record: &mut crate::objects::hittable::HitRecord,
+        record: &mut crate::objects::hittabbles::hittable::HitRecord,
         attenuation: &mut crate::color::Color,
         scattered: &mut crate::ray::Ray,
         rng: &mut dyn rand::Rng,

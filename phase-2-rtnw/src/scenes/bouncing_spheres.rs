@@ -1,8 +1,7 @@
 use crate::objects::{
     camera::Camera,
-    hittable_list,
+    hittabbles::{hittable_list, sphere::Sphere},
     materials::{dielectric::Dielectric, lambertian::Lambertian, material::Material, metal::Metal},
-    sphere::Sphere,
     textures::{checker_texture::CheckerTexture, texture::Texture},
 };
 

@@ -1,4 +1,4 @@
-use crate::{color::Color, objects::hittable::HitRecord, ray::Ray, vec3::Point3};
+use crate::{color::Color, objects::hittabbles::hittable::HitRecord, ray::Ray, vec3::Point3};
 
 pub trait Material {
     fn scatter(

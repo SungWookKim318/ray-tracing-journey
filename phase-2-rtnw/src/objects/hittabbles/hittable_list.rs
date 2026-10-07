@@ -1,4 +1,4 @@
-use crate::objects::hittable::{HitRecord, Hittable};
+use crate::objects::hittabbles::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::utils::aabb::Aabb;
 use crate::utils::interval::Interval;

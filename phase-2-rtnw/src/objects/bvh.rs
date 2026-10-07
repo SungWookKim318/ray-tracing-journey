@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-use super::hittable::Hittable;
-use crate::objects::hittable_list::HittableList;
+use super::hittabbles::hittable::Hittable;
+use crate::objects::hittabbles::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::utils::{aabb::Aabb, interval::Interval};
 
@@ -103,7 +103,12 @@ impl BvhNode {
 }
 
 impl Hittable for BvhNode {
-    fn hit(&self, ray: Ray, ray_t: Interval, hit_record: &mut super::hittable::HitRecord) -> bool {
+    fn hit(
+        &self,
+        ray: Ray,
+        ray_t: Interval,
+        hit_record: &mut super::hittabbles::hittable::HitRecord,
+    ) -> bool {
         if !self.bounding_box.hit(ray, ray_t) {
             return false;
         }

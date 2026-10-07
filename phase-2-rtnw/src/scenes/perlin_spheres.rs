@@ -4,9 +4,8 @@ use crate::{
     color::Color,
     objects::{
         camera::Camera,
-        hittable_list::HittableList,
+        hittabbles::{hittable_list::HittableList, sphere::Sphere},
         materials::{lambertian::Lambertian, material::Material},
-        sphere::Sphere,
         textures::noise_texture::NoiseTexture,
     },
     utils::noises::turbulence_perlin::TurbulencePerlin,

@@ -3,7 +3,7 @@ use rand::RngExt;
 use crate::{
     color::Color,
     image_data::ImageData,
-    objects::hittable::{HitRecord, Hittable},
+    objects::hittabbles::hittable::{HitRecord, Hittable},
     ray::Ray,
     utils::interval::Interval,
     vec3::{Point3, Vec3},
