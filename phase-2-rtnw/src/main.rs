@@ -40,7 +40,7 @@ fn main() {
     eprintln!("5) earth");
     eprintln!("6) perlin_spheres");
     eprintln!("7) simple_light");
-    eprintln!("8) simple_light");
+    eprintln!("8) cornell_box");
     eprintln!("*IMPORTANT* Current Default is 1.");
     if io::stdout().flush().is_err() {
         panic!("std out stream is fail to flush.");

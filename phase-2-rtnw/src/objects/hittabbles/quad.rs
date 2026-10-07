@@ -2,7 +2,10 @@ use std::rc::Rc;
 
 use crate::{
     objects::{
-        hittabbles::hittable::{HitRecord, Hittable},
+        hittabbles::{
+            hittable::{HitRecord, Hittable},
+            hittable_list::HittableList,
+        },
         materials::material::Material,
     },
     ray::Ray,
@@ -96,5 +99,55 @@ impl Quad {
             normal,
             d,
         }
+    }
+
+    pub fn make_box(a: Point3, b: Point3, material: Rc<dyn Material>) -> HittableList {
+        let mut sides = HittableList::new();
+
+        let min = Point3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z));
+        let max = Point3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z));
+
+        let dx = Vec3::new(max.x - min.x, 0.0, 0.0);
+        let dy = Vec3::new(0.0, max.y - min.y, 0.0);
+        let dz = Vec3::new(0.0, 0.0, max.z - min.z);
+
+        sides.add(Rc::new(Quad::new(
+            Point3::new(min.x, min.y, max.z),
+            dx,
+            dy,
+            material.clone(),
+        ))); // front
+        sides.add(Rc::new(Quad::new(
+            Point3::new(max.x, min.y, max.z),
+            -dz,
+            dy,
+            material.clone(),
+        ))); // right
+        sides.add(Rc::new(Quad::new(
+            Point3::new(max.x, min.y, min.z),
+            -dx,
+            dy,
+            material.clone(),
+        ))); // back
+        sides.add(Rc::new(Quad::new(
+            Point3::new(min.x, min.y, min.z),
+            dz,
+            dy,
+            material.clone(),
+        ))); // left
+        sides.add(Rc::new(Quad::new(
+            Point3::new(min.x, max.y, max.z),
+            dx,
+            -dz,
+            material.clone(),
+        ))); // top
+        sides.add(Rc::new(Quad::new(
+            Point3::new(min.x, min.y, min.z),
+            dx,
+            dz,
+            material.clone(),
+        ))); // bottom
+
+        sides
     }
 }
