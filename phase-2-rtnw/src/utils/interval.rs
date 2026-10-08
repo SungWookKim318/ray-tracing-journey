@@ -82,7 +82,7 @@ use std::ops::{Add, AddAssign};
 impl Add<f32> for Interval {
     type Output = Interval;
     fn add(self, displacement: f32) -> Self::Output {
-        let mut new_interval = self.clone();
+        let mut new_interval = self;
         new_interval.min += displacement;
         new_interval.max += displacement;
 

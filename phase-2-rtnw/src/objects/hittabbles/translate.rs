@@ -7,7 +7,7 @@ use crate::{
     vec3::Vec3,
 };
 
-struct Translate {
+pub struct Translate {
     object: Rc<dyn Hittable>,
     offset: Vec3,
     bounding_box: Aabb,

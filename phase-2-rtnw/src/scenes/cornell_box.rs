@@ -4,7 +4,9 @@ use crate::{
     color::Color,
     objects::{
         camera::Camera,
-        hittabbles::{hittable_list::HittableList, quad::Quad},
+        hittabbles::{
+            hittable_list::HittableList, quad::Quad, rotate_y::RotateY, translate::Translate,
+        },
         materials::{diffuse_light::DiffuseLight, lambertian::Lambertian},
     },
     vec3::{Point3, Vec3},
@@ -55,6 +57,24 @@ pub fn cornell_box() {
         Vec3::new(0.0, 555.0, 0.0),
         white.clone(),
     )));
+
+    let box1 = Rc::new(Quad::make_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    ));
+    let box1 = Rc::new(RotateY::new(box1, 15.0));
+    let box1 = Rc::new(Translate::new(box1, Vec3::new(265.0, 0.0, 295.0)));
+    world.add(box1);
+
+    let box2 = Rc::new(Quad::make_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 165.0, 165.0),
+        white.clone(),
+    ));
+    let box2 = Rc::new(RotateY::new(box2, -18.0));
+    let box2 = Rc::new(Translate::new(box2, Vec3::new(130.0, 0.0, 65.0)));
+    world.add(box2);
 
     let mut camera = Camera::zero();
     camera.aspect_ratio = 1.0;

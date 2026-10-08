@@ -176,7 +176,7 @@ use std::ops::{Add, AddAssign};
 impl Add<Vec3> for Aabb {
     type Output = Aabb;
     fn add(self, offset: Vec3) -> Self::Output {
-        let mut new_box = self.clone();
+        let mut new_box = self;
 
         new_box.x_interval += offset.x;
         new_box.y_interval += offset.y;
