@@ -16,7 +16,7 @@ use crate::{
 
 pub struct ConstantMedium {
     boundary: Rc<dyn Hittable>,
-    negitive_inverse_density: f32,
+    negative_inverse_density: f32,
     phase_function: Rc<dyn Material>,
 }
 
@@ -53,7 +53,7 @@ impl Hittable for ConstantMedium {
 
         let ray_length = ray.direction().length();
         let distance_inside_boundary = (record_2.t - record_1.t) * ray_length;
-        let hit_distance = self.negitive_inverse_density * random_range(0.0..=1.0f32).ln();
+        let hit_distance = self.negative_inverse_density * random_range(0.0..=1.0f32).ln();
 
         if hit_distance > distance_inside_boundary {
             return false;
@@ -62,8 +62,8 @@ impl Hittable for ConstantMedium {
         hit_record.t = record_1.t + hit_distance / ray_length;
         hit_record.point = ray.at(hit_record.t);
 
-        hit_record.normal = Vec3::new(1.0, 0.0, 0.0);
-        hit_record.is_front_face = true;
+        hit_record.normal = Vec3::new(1.0, 0.0, 0.0); // arbitrary
+        hit_record.is_front_face = true; // arbitrary
         hit_record.material = self.phase_function.clone();
 
         true
@@ -83,7 +83,7 @@ impl ConstantMedium {
         let new_isotropic = Isotropic::new(texture);
         Self {
             boundary,
-            negitive_inverse_density: -1.0 / density,
+            negative_inverse_density: -1.0 / density,
             phase_function: Rc::new(new_isotropic),
         }
     }
@@ -93,7 +93,7 @@ impl ConstantMedium {
         let new_isotropic = Isotropic::new(Rc::new(texture));
         Self {
             boundary,
-            negitive_inverse_density: -1.0 / density,
+            negative_inverse_density: -1.0 / density,
             phase_function: Rc::new(new_isotropic),
         }
     }
