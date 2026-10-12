@@ -2,8 +2,8 @@
 use crate::scenes::{
     basic_quads::basic_quads, bouncing_spheres::bouncing_spheres,
     bouncing_spheres_with_bvh::bouncing_spheres_with_bvh, checkered_spheres::checkered_spheres,
-    cornell_box::cornell_box, earth::earth_globe, perlin_spheres::perlin_spheres,
-    simple_light::simple_light,
+    cornell_box::cornell_box, cornell_smoke::cornell_smoke, earth::earth_globe,
+    perlin_spheres::perlin_spheres, simple_light::simple_light,
 };
 use core::panic;
 use std::{
@@ -28,6 +28,7 @@ enum SceneTypes {
     BasicQuads,
     SimpleLight,
     CornellBox,
+    CornellSmoke,
 }
 
 fn main() {
@@ -41,6 +42,7 @@ fn main() {
     eprintln!("6) perlin_spheres");
     eprintln!("7) simple_light");
     eprintln!("8) cornell_box");
+    eprintln!("9) cornell_smoke");
     eprintln!("*IMPORTANT* Current Default is 1.");
     if io::stdout().flush().is_err() {
         panic!("std out stream is fail to flush.");
@@ -67,6 +69,7 @@ fn main() {
         6 => SceneTypes::PerlinSpheres,
         7 => SceneTypes::SimpleLight,
         8 => SceneTypes::CornellBox,
+        9 => SceneTypes::CornellSmoke,
 
         _ => SceneTypes::BasicQuads,
     };
@@ -80,5 +83,6 @@ fn main() {
         SceneTypes::BasicQuads => basic_quads(),
         SceneTypes::SimpleLight => simple_light(),
         SceneTypes::CornellBox => cornell_box(),
+        SceneTypes::CornellSmoke => cornell_smoke(),
     };
 }

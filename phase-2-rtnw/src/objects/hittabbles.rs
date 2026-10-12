@@ -1,3 +1,4 @@
+pub mod constant_medium;
 pub mod hittable;
 pub mod hittable_list;
 pub mod quad;
