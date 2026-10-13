@@ -1,3 +1,4 @@
+use core::panic;
 use std::rc::Rc;
 
 use itertools::iproduct;
@@ -7,13 +8,29 @@ use crate::{
     objects::{
         bvh::BvhNode,
         camera::Camera,
-        hittabbles::{hittable_list::HittableList, quad::Quad},
-        materials::{diffuse_light::DiffuseLight, lambertian::Lambertian},
+        hittabbles::{
+            constant_medium::ConstantMedium, hittable_list::HittableList, quad::Quad,
+            rotate_y::RotateY, sphere::Sphere, translate::Translate,
+        },
+        materials::{
+            dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian,
+            metal::Metal,
+        },
+        textures::{
+            image_texture::{ImageTexture, PixelType},
+            noise_texture::NoiseTexture,
+        },
     },
+    utils::noises::turbulence_perlin::TurbulencePerlin,
     vec3::{Point3, Vec3},
 };
 
-fn final_scene(image_width: i32, sample_per_pixel: i32, max_depth: i32) {
+pub fn final_scene(image_width: i32, sample_per_pixel: i32, max_depth: i32) {
+    eprintln!(
+        "start final_scene({}, {}, {})",
+        image_width, sample_per_pixel, max_depth
+    );
+    let mut rng = rand::rng();
     let mut boxes1 = HittableList::new();
 
     let ground_mat = Rc::new(Lambertian::new(Color::new(0.48, 0.83, 0.53)));
@@ -37,7 +54,8 @@ fn final_scene(image_width: i32, sample_per_pixel: i32, max_depth: i32) {
     }
 
     let mut world = HittableList::new();
-    world.add(Rc::new(boxes1));
+    let bvh_boxes1 = BvhNode::new_root(&mut boxes1);
+    world.add(Rc::new(bvh_boxes1));
 
     let light = Rc::new(DiffuseLight::new_with_color(Color::new(7.0, 7.0, 7.0)));
     world.add(Rc::new(Quad::new(
@@ -45,6 +63,89 @@ fn final_scene(image_width: i32, sample_per_pixel: i32, max_depth: i32) {
         Vec3::new(300.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, 265.0),
         light,
+    )));
+
+    let center_point_1 = Point3::new(400.0, 400.0, 200.0);
+    let center_point_2 = center_point_1 + Vec3::new(30.0, 0.0, 0.0);
+    let sphere_mat = Rc::new(Lambertian::new(Color::new(0.7, 0.3, 0.1)));
+    world.add(Rc::new(Sphere::moved_new(
+        center_point_1,
+        center_point_2,
+        50.0,
+        sphere_mat,
+    )));
+
+    world.add(Rc::new(Sphere::new(
+        Point3::new(260.0, 150.0, 45.0),
+        50.0,
+        Rc::new(Dielectric::new(1.5)),
+    )));
+    world.add(Rc::new(Sphere::new(
+        Point3::new(0.0, 150.0, 145.0),
+        50.0,
+        Rc::new(Metal::new(Color::new(0.8, 0.8, 0.9), 1.0)),
+    )));
+
+    let boundary = Rc::new(Sphere::new(
+        Point3::new(360.0, 150.0, 145.0),
+        70.0,
+        Rc::new(Dielectric::new(1.5)),
+    ));
+    world.add(boundary.clone());
+    world.add(Rc::new(ConstantMedium::new(
+        boundary.clone(),
+        0.2,
+        Color::new(0.2, 0.4, 0.9),
+    )));
+    let boundary = Rc::new(Sphere::new(
+        Point3::new(0.0, 0.0, 0.0),
+        5000.0,
+        Rc::new(Dielectric::new(1.5)),
+    ));
+    world.add(Rc::new(ConstantMedium::new(
+        boundary,
+        0.0001,
+        Color::new(1.0, 1.0, 1.0),
+    )));
+
+    let image_path = "assets/earthmap.jpg";
+    let earth_texture = match ImageTexture::load_file(image_path.to_string(), PixelType::RGB888) {
+        Some(texture) => Rc::new(texture),
+        None => {
+            panic!("fail to load image");
+        }
+    };
+    let earth_mat = Rc::new(Lambertian::new_with_texture(earth_texture));
+    world.add(Rc::new(Sphere::new(
+        Point3::new(400.0, 200.0, 400.0),
+        100.0,
+        earth_mat,
+    )));
+    let perlin_texture = Rc::new(NoiseTexture::new(
+        Box::new(TurbulencePerlin::new(&mut rng)),
+        4.0,
+    ));
+    let noise_mat = Rc::new(Lambertian::new_with_texture(perlin_texture));
+    world.add(Rc::new(Sphere::new(
+        Point3::new(220.0, 280.0, 300.0),
+        80.0,
+        noise_mat,
+    )));
+
+    let mut boxes2 = HittableList::new();
+    let white_mat = Rc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    for _ in 0..1000 {
+        boxes2.add(Rc::new(Sphere::new(
+            Point3::random_range(&mut rng, 0.0, 165.0),
+            10.0,
+            white_mat.clone(),
+        )));
+    }
+
+    let bvh_boxes2 = BvhNode::new_root(&mut boxes2);
+    world.add(Rc::new(Translate::new(
+        Rc::new(RotateY::new(Rc::new(bvh_boxes2), 15.0)),
+        Vec3::new(-100.0, 270.0, 395.0),
     )));
 
     let mut camera = Camera::zero();
@@ -60,15 +161,8 @@ fn final_scene(image_width: i32, sample_per_pixel: i32, max_depth: i32) {
     camera.up_direction = Vec3::new(0.0, 1.0, 0.0);
     camera.defocus_angle = 0.0;
 
-    eprintln!("Create BVH");
-    let bvh_start_time = std::time::Instant::now();
     let bvh_world = BvhNode::new_root(&mut world);
-    eprintln!(
-        "Finished BVH, Start Generate Rays. {:.2?}",
-        bvh_start_time.elapsed()
-    );
-
     let ray_generate_time = std::time::Instant::now();
     camera.render(&bvh_world);
-    eprintln!("End cornell_smoke. {:.2?}", ray_generate_time.elapsed());
+    eprintln!("End final_scene. {:.2?}", ray_generate_time.elapsed());
 }
