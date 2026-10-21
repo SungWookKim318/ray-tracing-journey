@@ -1,12 +1,10 @@
 use std::rc::Rc;
 
-use crate::objects::materials::material::Material;
-use crate::objects::materials::material::NoneMaterial;
+use crate::objects::materials::material::{Material, NoneMaterial};
 use crate::ray::Ray;
 use crate::utils::aabb::Aabb;
 use crate::utils::interval::Interval;
 use crate::vec3::{Point3, Vec3};
-
 pub struct HitRecord {
     pub point: Point3,
     pub normal: Vec3,

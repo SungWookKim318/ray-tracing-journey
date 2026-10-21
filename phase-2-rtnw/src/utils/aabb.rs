@@ -1,4 +1,7 @@
-use crate::{ray::Ray, vec3::Point3};
+use crate::{
+    ray::Ray,
+    vec3::{Point3, Vec3},
+};
 
 use super::interval::Interval;
 
@@ -9,20 +12,34 @@ pub struct Aabb {
     pub z_interval: Interval,
 }
 
+const DELTA_INTERVAL: f32 = 0.001;
+
 impl Aabb {
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        Self {
+        let new_boundary = Self {
             x_interval: x,
             y_interval: y,
             z_interval: z,
+        };
+
+        if new_boundary.x_interval.size() < DELTA_INTERVAL {
+            new_boundary.x_interval.expand(DELTA_INTERVAL);
         }
+        if new_boundary.y_interval.size() < DELTA_INTERVAL {
+            new_boundary.y_interval.expand(DELTA_INTERVAL);
+        }
+        if new_boundary.z_interval.size() < DELTA_INTERVAL {
+            new_boundary.z_interval.expand(DELTA_INTERVAL);
+        }
+
+        new_boundary
     }
 
-    pub const fn empty() -> Self {
+    pub fn empty() -> Self {
         Self {
-            x_interval: Interval::empty(),
-            y_interval: Interval::empty(),
-            z_interval: Interval::empty(),
+            x_interval: Interval::empty().expand(DELTA_INTERVAL),
+            y_interval: Interval::empty().expand(DELTA_INTERVAL),
+            z_interval: Interval::empty().expand(DELTA_INTERVAL),
         }
     }
 
@@ -151,5 +168,28 @@ impl Aabb {
         self.x_interval = Interval::merge(self.x_interval, other.x_interval);
         self.y_interval = Interval::merge(self.y_interval, other.y_interval);
         self.z_interval = Interval::merge(self.z_interval, other.z_interval);
+    }
+}
+
+use std::ops::{Add, AddAssign};
+
+impl Add<Vec3> for Aabb {
+    type Output = Aabb;
+    fn add(self, offset: Vec3) -> Self::Output {
+        let mut new_box = self;
+
+        new_box.x_interval += offset.x;
+        new_box.y_interval += offset.y;
+        new_box.z_interval += offset.z;
+
+        new_box
+    }
+}
+
+impl AddAssign<Vec3> for Aabb {
+    fn add_assign(&mut self, displacement: Vec3) {
+        self.x_interval += displacement.x;
+        self.y_interval += displacement.y;
+        self.z_interval += displacement.z;
     }
 }

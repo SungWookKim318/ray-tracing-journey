@@ -1,9 +1,8 @@
 use crate::objects::{
     bvh::BvhNode,
     camera::Camera,
-    hittable_list,
+    hittabbles::{hittable_list, sphere::Sphere},
     materials::{dielectric::Dielectric, lambertian::Lambertian, material::Material, metal::Metal},
-    sphere::Sphere,
     textures::{checker_texture::CheckerTexture, texture::Texture},
 };
 
@@ -102,6 +101,7 @@ pub(crate) fn bouncing_spheres_with_bvh() {
     );
 
     let mut camera = Camera::zero();
+    camera.background = Color::new(0.7, 0.8, 1.0);
     camera.aspect_ratio = 16.0 / 9.0f32;
     camera.image_width = 400;
     camera.sample_per_pixel = 50;

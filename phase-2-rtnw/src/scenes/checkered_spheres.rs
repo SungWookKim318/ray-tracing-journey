@@ -4,9 +4,8 @@ use crate::{
     color::Color,
     objects::{
         camera::Camera,
-        hittable_list::HittableList,
+        hittabbles::{hittable_list::HittableList, sphere::Sphere},
         materials::lambertian::Lambertian,
-        sphere::Sphere,
         textures::{checker_texture::CheckerTexture, texture::Texture},
     },
     vec3::{Point3, Vec3},
@@ -34,6 +33,7 @@ pub(crate) fn checkered_spheres() {
     )));
 
     let mut camera = Camera::zero();
+    camera.background = Color::new(0.7, 0.8, 1.0);
     camera.aspect_ratio = 16.0 / 9.0f32;
     camera.image_width = 400;
     camera.sample_per_pixel = 100;

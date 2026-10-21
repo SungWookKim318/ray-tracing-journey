@@ -1,4 +1,4 @@
-use crate::objects::hittable::{HitRecord, Hittable};
+use crate::objects::hittabbles::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::utils::aabb::Aabb;
 use crate::utils::interval::Interval;
@@ -10,7 +10,7 @@ pub struct HittableList {
 }
 
 impl HittableList {
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             objects: Vec::new(),
             bounding_box: Aabb::empty(),

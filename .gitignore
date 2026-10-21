@@ -101,3 +101,5 @@ Desktop.ini
 # remove addtional files
 *.ppm
 *.png
+
+!docs/*.png

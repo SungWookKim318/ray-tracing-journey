@@ -1,10 +1,11 @@
 use std::{eprint, panic, rc::Rc};
 
 use crate::{
+    color::Color,
     objects::{
         camera::Camera,
+        hittabbles::sphere::Sphere,
         materials::{lambertian::Lambertian, material::Material},
-        sphere::Sphere,
         textures::image_texture::{ImageTexture, PixelType},
     },
     vec3::{Point3, Vec3},
@@ -23,6 +24,7 @@ pub(crate) fn earth_globe() {
     let globe = Sphere::new(Point3::new(0.0, 0.0, 0.0), 2.0, surface);
 
     let mut camera = Camera::zero();
+    camera.background = Color::new(0.7, 0.8, 1.0);
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
     camera.sample_per_pixel = 100;

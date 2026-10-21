@@ -4,12 +4,12 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug phase-1-rtiow",
+      "name": "Debug phase-2-rtnw",
       "cargo": {
-        "args": ["build", "--bin=phase-1-rtiow", "--manifest-path=${workspaceFolder}/phase-1-rtiow/Cargo.toml"]
+        "args": ["build", "--bin=phase-2-rtnw", "--manifest-path=${workspaceFolder}/phase-2-rtnw/Cargo.toml"]
       },
       "args": [],
-      "cwd": "${workspaceFolder}/phase-1-rtiow"
+      "cwd": "${workspaceFolder}/phase-2-rtnw"
     }
   ]
 }
